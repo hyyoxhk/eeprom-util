@@ -25,21 +25,21 @@
 
 #define EEPROM_SIZE 256
 
-enum layout_version {
-	LAYOUT_AUTODETECT = -1,
-	LAYOUT_LEGACY,
-	LAYOUT_VER1,
-	LAYOUT_VER2,
-	LAYOUT_VER3,
-	LAYOUT_VER4,
-	LAYOUT_UNRECOGNIZED, /* marks the end of the layout versions */
-	RAW_DATA,
-};
+#define LAYOUT_AUTODETECT -1
+#define LAYOUT_LEGACY 0
+
+#define LAYOUT_VER1 1
+#define LAYOUT_VER2 2
+#define LAYOUT_VER3 3
+#define LAYOUT_VER4 4
+
+#define LAYOUT_UNRECOGNIZED 254
+#define RAW_DATA 255
 
 struct layout {
 	struct field *fields;
 	int num_of_fields;
-	enum layout_version layout_version;
+	int layout_version;
 	unsigned char *data;
 	int data_size;
 	void (*print)(const struct layout *layout);
@@ -54,7 +54,7 @@ struct layout {
 };
 
 struct layout *new_layout(unsigned char *buf, unsigned int buf_size,
-			  enum layout_version layout_version,
+			  int layout_version,
 			  enum print_format print_format);
 void free_layout(struct layout *layout);
 

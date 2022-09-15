@@ -1,0 +1,61 @@
+{
+    "layout": {
+        "version": 1,
+        "field": [
+            {
+                "name": "Major Revision",
+                "short_name": "major",
+                "data_size": 2,
+                "type": 2
+            },
+            {
+                "name": "Minor Revision",
+                "short_name": "minor",
+                "data_size": 2,
+                "type": 2
+            },
+            {
+                "name": "Product ID",
+                "short_name": "id",
+                "data_size": 32,
+                "type": 3
+            },
+            {
+                "name": "Reserved fields",
+                "short_name": "major",
+                "data_size": 32,
+                "type": 6
+            },
+            {
+                "name": "MAC1 Address",
+                "short_name": "mac1",
+                "data_size": 6,
+                "type": 4
+            },
+            {
+                "name": "MAC2 Address",
+                "short_name": "mac2",
+                "data_size": 6,
+                "type": 4
+            },
+            {
+                "name": "Serial Number",
+                "short_name": "sn",
+                "data_size": 16,
+                "type": 3
+            },
+            {
+                "name": "Model Name",
+                "short_name": "model",
+                "data_size": 16,
+                "type": 3
+            },
+            {
+                "name": "OEM",
+                "short_name": "oem",
+                "data_size": 12,
+                "type": 3
+            }
+        ]
+    }
+}

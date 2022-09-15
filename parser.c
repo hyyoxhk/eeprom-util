@@ -34,7 +34,7 @@ static inline bool write_enabled(void) { return true; }
 static inline bool write_enabled(void) { return false; }
 #endif
 
-void print_banner(void)
+static void print_banner(void)
 {
 	char *version = strnlen(VERSION, 20) ? " version " VERSION : "";
 	char *date = " (" BUILD_DATE " - " BUILD_TIME ")";
@@ -192,7 +192,7 @@ static enum action parse_action(int argc, char *argv[])
 	return EEPROM_ACTION_INVALID; //To appease the compiler
 }
 
-static enum layout_version parse_layout_version(char *str)
+static int parse_layout_version(char *str)
 {
 	ASSERT(str);
 
@@ -212,7 +212,7 @@ static enum layout_version parse_layout_version(char *str)
 	if (layout < LAYOUT_AUTODETECT || layout >= LAYOUT_UNRECOGNIZED)
 		message_exit("Unknown layout version!\n");
 
-	return (enum layout_version)layout;
+	return layout;
 }
 
 static enum print_format parse_print_format(char *str)

@@ -32,7 +32,7 @@ TARGET := eeprom-util
 GOAL_FILE := $(OBJDIR)/make_goal
 AUTO_GENERATED_FILE := auto_generated.h
 
-CORE := common.o field.o layout.o command.o linux_api.o
+CORE := common.o field.o layout.o command.o linux_api.o parsing_libjson.o
 MAIN := parser.o
 
 OBJECTS := $(addprefix $(OBJDIR)/,$(CORE))
@@ -44,7 +44,7 @@ WRITEFLAGS = -D ENABLE_WRITE
 DEBUGFLAGS = -g -D DEBUG
 
 $(TARGET): $(OBJECTS) $(AUTO_GENERATED_FILE) $(OBJDIR)/$(MAIN)
-	$(CC) $(LDFLAGS) $(OBJECTS) $(OBJDIR)/$(MAIN) -o $(TARGET)
+	$(CC) $(LDFLAGS) $(OBJECTS) $(OBJDIR)/$(MAIN) -o $(TARGET) -ljson-c
 
 $(OBJDIR)/%.o : %.c $(GOAL_FILE)
 	$(CC) $(CFLAGS) $(DEPFLAGS) -c -o $@ $<

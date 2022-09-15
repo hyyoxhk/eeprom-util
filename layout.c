@@ -25,94 +25,13 @@
 #include "layout.h"
 #include "common.h"
 #include "field.h"
+#include "parsing_libjson.h"
 
 #define LAYOUT_CHECK_BYTE	44
 #define NO_LAYOUT_FIELDS	"Unknown layout. Dumping raw data\n"
 #define ARRAY_LEN(x)		(sizeof(x) / sizeof((x)[0]))
 
-struct field layout_legacy[5] = {
-	{ "MAC address",		"mac",	6,	FIELD_MAC },
-	{ "Board Revision",		"rev",	2,	FIELD_BINARY },
-	{ "Serial Number",		"sn",	8,	FIELD_BINARY },
-	{ "Board Configuration",	"conf",	64,	FIELD_ASCII },
-	{ "Reserved fields",		"rsvd",	176,	FIELD_RESERVED },
-};
-
-struct field layout_v1[12] = {
-	{ "Major Revision",	"major",	2,	FIELD_VERSION },
-	{ "Minor Revision",	"minor",	2,	FIELD_VERSION },
-	{ "1st MAC Address",	"mac1",		6,	FIELD_MAC },
-	{ "2nd MAC Address",	"mac2",		6,	FIELD_MAC },
-	{ "Production Date",	"date",		4,	FIELD_DATE },
-	{ "Serial Number",	"sn",		12,	FIELD_REVERSED },
-	{ "Reserved fields",	"rsvd",		96,	FIELD_RESERVED },
-	{ "Product Name",	"name",		16,	FIELD_ASCII },
-	{ "Product Options #1",	"opt1",		16,	FIELD_ASCII },
-	{ "Product Options #2",	"opt2",		16,	FIELD_ASCII },
-	{ "Product Options #3",	"opt3",		16,	FIELD_ASCII },
-	{ "Reserved fields",	"rsvd",		64,	FIELD_RESERVED },
-};
-
-struct field layout_v2[15] = {
-	{ "Major Revision",			"major",	2,	FIELD_VERSION },
-	{ "Minor Revision",			"minor",	2,	FIELD_VERSION },
-	{ "1st MAC Address",			"mac1",		6,	FIELD_MAC },
-	{ "2nd MAC Address",			"mac2",		6,	FIELD_MAC },
-	{ "Production Date",			"date",		4,	FIELD_DATE },
-	{ "Serial Number",			"sn",		12,	FIELD_REVERSED },
-	{ "3rd MAC Address (WIFI)",		"mac3",		6,	FIELD_MAC },
-	{ "4th MAC Address (Bluetooth)",	"mac4",		6,	FIELD_MAC },
-	{ "Layout Version",			"layout",	1,	FIELD_BINARY },
-	{ "Reserved fields",			"rsvd",		83,	FIELD_RESERVED },
-	{ "Product Name",			"name", 	16,	FIELD_ASCII },
-	{ "Product Options #1",			"opt1", 	16,	FIELD_ASCII },
-	{ "Product Options #2",			"opt2", 	16,	FIELD_ASCII },
-	{ "Product Options #3",			"opt3", 	16,	FIELD_ASCII },
-	{ "Reserved fields",			"rsvd",		64,	FIELD_RESERVED },
-};
-
-struct field layout_v3[16] = {
-	{ "Major Revision",			"major",	2,	FIELD_VERSION },
-	{ "Minor Revision",			"minor",	2,	FIELD_VERSION },
-	{ "1st MAC Address",			"mac1",		6,	FIELD_MAC },
-	{ "2nd MAC Address",			"mac2",		6,	FIELD_MAC },
-	{ "Production Date",			"date",		4,	FIELD_DATE },
-	{ "Serial Number",			"sn",		12,	FIELD_REVERSED },
-	{ "3rd MAC Address (WIFI)",		"mac3",		6,	FIELD_MAC },
-	{ "4th MAC Address (Bluetooth)",	"mac4",		6,	FIELD_MAC },
-	{ "Layout Version",			"layout",	1,	FIELD_BINARY },
-	{ "CompuLab EEPROM ID",			"id",		3,	FIELD_BINARY },
-	{ "Reserved fields",			"rsvd",		80,	FIELD_RESERVED },
-	{ "Product Name",			"name",		16,	FIELD_ASCII },
-	{ "Product Options #1",			"opt1",		16,	FIELD_ASCII },
-	{ "Product Options #2",			"opt2",		16,	FIELD_ASCII },
-	{ "Product Options #3",			"opt3",		16,	FIELD_ASCII },
-	{ "Reserved fields",			"rsvd",		64,	FIELD_RESERVED },
-};
-
-struct field layout_v4[21] = {
-	{ "Major Revision",			"major",	2,	FIELD_VERSION },
-	{ "Minor Revision",			"minor",	2,	FIELD_VERSION },
-	{ "1st MAC Address",			"mac1",		6,	FIELD_MAC },
-	{ "2nd MAC Address",			"mac2",		6,	FIELD_MAC },
-	{ "Production Date",			"date",		4,	FIELD_DATE },
-	{ "Serial Number",			"sn",		12,	FIELD_REVERSED },
-	{ "3rd MAC Address (WIFI)",		"mac3",		6,	FIELD_MAC },
-	{ "4th MAC Address (Bluetooth)",	"mac4",		6,	FIELD_MAC },
-	{ "Layout Version",			"layout",	1,	FIELD_BINARY },
-	{ "CompuLab EEPROM ID",			"id",		3,	FIELD_BINARY },
-	{ "5th MAC Address",			"mac5",		6,	FIELD_MAC },
-	{ "6th MAC Address",			"mac6",		6,	FIELD_MAC },
-	{ "Scratchpad",				"spad",		4,	FIELD_BINARY },
-	{ "Reserved fields",			"rsvd",		64,	FIELD_RESERVED },
-	{ "Product Name",			"name",		16,	FIELD_ASCII },
-	{ "Product Options #1",			"opt1",		16,	FIELD_ASCII },
-	{ "Product Options #2",			"opt2",		16,	FIELD_ASCII },
-	{ "Product Options #3",			"opt3",		16,	FIELD_ASCII },
-	{ "Product Options #4",			"opt4",		16,	FIELD_ASCII },
-	{ "Product Options #5",			"opt5",		16,	FIELD_ASCII },
-	{ "Reserved fields",			"rsvd",		32,	FIELD_RESERVED },
-};
+#define LAYOUT_PATH "/etc/eeprom"
 
 struct field layout_unknown[1] = {
 	{ NO_LAYOUT_FIELDS, "raw", 256, FIELD_RAW },
@@ -124,7 +43,7 @@ struct field layout_unknown[1] = {
  *
  * Returns: the detected layout version.
  */
-static enum layout_version detect_layout(unsigned char *data)
+static int detect_layout(unsigned char *data)
 {
 	ASSERT(data);
 
@@ -146,40 +65,16 @@ static enum layout_version detect_layout(unsigned char *data)
 	return LAYOUT_UNRECOGNIZED;
 }
 
-/*
- * build_layout() - Detect layout and build it with a predefined array
- * @layout:	An allocated layout
- */
-static void build_layout(struct layout *layout)
+static int build_layout(struct layout *layout)
 {
-	if (layout->layout_version == LAYOUT_AUTODETECT)
-		layout->layout_version = detect_layout(layout->data);
+	char layout_config[32];
+	int layout_ver = layout->layout_version;
 
-	switch (layout->layout_version) {
-	case LAYOUT_LEGACY:
-		layout->fields = layout_legacy;
-		layout->num_of_fields = ARRAY_LEN(layout_legacy);
-		break;
-	case LAYOUT_VER1:
-		layout->fields = layout_v1;
-		layout->num_of_fields = ARRAY_LEN(layout_v1);
-		break;
-	case LAYOUT_VER2:
-		layout->fields = layout_v2;
-		layout->num_of_fields = ARRAY_LEN(layout_v2);
-		break;
-	case LAYOUT_VER3:
-		layout->fields = layout_v3;
-		layout->num_of_fields = ARRAY_LEN(layout_v3);
-		break;
-	case LAYOUT_VER4:
-		layout->fields = layout_v4;
-		layout->num_of_fields = ARRAY_LEN(layout_v4);
-		break;
-	default:
-		layout->fields = layout_unknown;
-		layout->num_of_fields = ARRAY_LEN(layout_unknown);
-	}
+	if (layout_ver == LAYOUT_AUTODETECT)
+		layout_ver = detect_layout(layout->data);
+
+	sprintf(layout_config, LAYOUT_PATH"/layout-v%d.json", layout_ver);
+	return parse_json(layout, layout_config);
 }
 
 /*
@@ -397,7 +292,7 @@ static int clear_fields(struct layout *layout, struct data_array *data)
  * Returns: pointer to a new layout on success, NULL on failure
  */
 struct layout *new_layout(unsigned char *buf, unsigned int buf_size,
-			  enum layout_version layout_version,
+			  int layout_version,
 			  enum print_format print_format)
 {
 	ASSERT(buf);
@@ -410,7 +305,8 @@ struct layout *new_layout(unsigned char *buf, unsigned int buf_size,
 	layout->data = buf;
 	layout->data_size = buf_size;
 
-	build_layout(layout);
+	if (build_layout(layout) < 0)
+		return NULL;
 
 	for (int i = 0; i < layout->num_of_fields; i++) {
 		struct field *field = &layout->fields[i];
@@ -433,5 +329,6 @@ struct layout *new_layout(unsigned char *buf, unsigned int buf_size,
  */
 void free_layout(struct layout *layout)
 {
+	free(layout->fields);
 	free(layout);
 }

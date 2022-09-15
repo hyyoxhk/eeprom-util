@@ -39,8 +39,8 @@ enum print_format {
 };
 
 struct field {
-	char *name;
-	char *short_name;
+	const char *name;
+	const char *short_name;
 	int data_size;
 	enum field_type type;
 	unsigned char *data;
