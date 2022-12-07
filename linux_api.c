@@ -157,7 +157,7 @@ static int list_i2c_accessible(int bus)
 	ASSERT(bus <= MAX_I2C_BUS);
 
 	int fd, ret = -1;
-	char dev_file_name[13];
+	char dev_file_name[20];
 	bool i2c_bus_found = false;
 
 	int i = (bus < 0) ? MIN_I2C_BUS : bus;
@@ -204,7 +204,7 @@ static int list_driver_accessible(int bus)
 
 	int ret = -1;
 	char *dev_file_format = DRIVER_DEV_PATH"/%d-00%02x/eeprom";
-	char dev_file_name[40];
+	char dev_file_name[44];
 	bool driver_found = false;
 
 	if (access(DRIVER_DEV_PATH, F_OK) < 0) {

@@ -37,25 +37,11 @@ static json_object *find_root(json_object *root, const char **names)
 
 static void get_value(json_object *e, void *dest)
 {
-	enum json_type type;
+	enum json_type type = json_type_null;
 
 	type = json_object_get_type(e);
-	switch (type) {
-	case json_type_boolean:
-		*(unsigned int *)dest = json_object_get_boolean(e);
-		break;
-	case json_type_int:
+	if (type == json_type_int)
 		*(unsigned int *)dest = json_object_get_int(e);
-		break;
-	// case json_type_string:
-	// 	strcpy(dest, json_object_get_string(e));
-	// 	break;
-	case json_type_double:
-		*(double *)dest = json_object_get_double(e);
-		break;
-	default:
-		break;
-	}
 }
 
 static void get_field(json_object *e, const char *path, void *dest)
@@ -88,6 +74,14 @@ static const char *get_field_string(json_object *e, const char *path)
 	}
 
 	return NULL;
+}
+
+void get_field_string_with_size(void *e, const char *path, char *d, size_t n)
+{
+	const char *s = NULL;
+	s = get_field_string(e, path);
+	if (s)
+		strncpy(d, s, n);
 }
 
 /*
@@ -180,7 +174,7 @@ static void parse_field(void *setting, struct field *fields)
 {
 	void *elem;
 	int count, i;
-	int type;
+	int type = FIELD_BINARY;
 
 	count = json_object_array_length(setting);
 
@@ -190,8 +184,8 @@ static void parse_field(void *setting, struct field *fields)
 		if (!elem)
 			continue;
 
-		fields[i].name = get_field_string(elem, "name");
-		fields[i].short_name = get_field_string(elem, "short_name");
+		GET_FIELD_STRING(elem, "name", fields[i].name);
+		GET_FIELD_STRING(elem, "short_name", fields[i].short_name);
 		get_field(elem, "data_size", &fields[i].data_size);
 		get_field(elem, "type", &type);
 		fields[i].type = (enum field_type)type;
@@ -201,13 +195,13 @@ static void parse_field(void *setting, struct field *fields)
 static int parser(void *cfg, struct layout *layout)
 {
 	void *setting;
-	int version;
+	int version = 0;
 
 	if((setting = find_node(cfg, "version")) == NULL) {
 		printf("Missing version in configuration file.\n");
 		return -1;
 	}
-	get_value(setting, &version);
+	get_field(setting, NULL, &version);
 	if (version != layout->layout_version) {
 		printf("opened with wrong version file.\n");
 		return -1;
@@ -278,4 +272,3 @@ int parse_json(struct layout *layout, const char *filename)
 
 	return ret;
 }
-

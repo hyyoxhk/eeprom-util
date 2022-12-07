@@ -33,7 +33,7 @@ GOAL_FILE := $(OBJDIR)/make_goal
 AUTO_GENERATED_FILE := auto_generated.h
 
 CORE := common.o field.o layout.o command.o linux_api.o parsing_libjson.o
-MAIN := parser.o
+MAIN := main.o
 
 OBJECTS := $(addprefix $(OBJDIR)/,$(CORE))
 DEPS    := $(addprefix $(DEPDIR)/,$(CORE:.o=.d) $(MAIN:.o=.d))

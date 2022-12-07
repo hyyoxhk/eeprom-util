@@ -1,0 +1,6 @@
+option(
+	'enable-write',
+	type: 'boolean',
+	value: false,
+	description: 'support write feature'
+)
