@@ -28,7 +28,7 @@
 #define iveprintf(str, value, name) \
 	ieprintf("Invalid value \"%s\" for field \"%s\" - " str, value, name);
 
-static void __print_bin(const struct field *field,
+static void __read_bin(const struct field *field,
 			char *delimiter, bool reverse)
 {
 	ASSERT(field && field->data && delimiter);
@@ -38,11 +38,11 @@ static void __print_bin(const struct field *field,
 	int to = reverse ? 0 : field->data_size - 1;
 	for (i = from; i != to; reverse ? i-- : i++)
 		printf("%02x%s", field->data[i], delimiter);
-
+	// snprintf
 	printf("%02x\n", field->data[i]);
 }
 
-static int __update_bin(struct field *field, const char *value, bool reverse)
+static int __write_bin(struct field *field, const char *value, bool reverse)
 {
 	ASSERT(field && field->data && field->name && value);
 
@@ -88,7 +88,7 @@ static int __update_bin(struct field *field, const char *value, bool reverse)
 	return 0;
 }
 
-static int __update_bin_delim(struct field *field, char *value, char delimiter)
+static int __write_bin_delim(struct field *field, char *value, char delimiter)
 {
 	ASSERT(field && field->data && field->name && value);
 
@@ -126,9 +126,9 @@ static int __update_bin_delim(struct field *field, char *value, char delimiter)
  *
  * @field:	an initialized field to print
  */
-static void print_bin(const struct field *field)
+static void read_bin(const struct field *field)
 {
-	__print_bin(field, "", false);
+	__read_bin(field, "", false);
 }
 
 /**
@@ -136,7 +136,7 @@ static void print_bin(const struct field *field)
  *
  * @field:	an initialized field to print
  */
-static void print_bin_raw(const struct field *field)
+static void read_bin_raw(const struct field *field)
 {
 	ASSERT(field && field->data);
 
@@ -170,9 +170,9 @@ static void print_bin_raw(const struct field *field)
  * @field:	an initialized field
  * @value:	a string of values (i.e. "10b234a")
  */
-static int update_bin(struct field *field, char *value)
+static int write_bin(struct field *field, char *value)
 {
-	return __update_bin(field, value, false);
+	return __write_bin(field, value, false);
 }
 
 /**
@@ -186,9 +186,9 @@ static int update_bin(struct field *field, char *value)
  *
  * @field:	an initialized field to print
  */
-static void print_bin_rev(const struct field *field)
+static void read_bin_rev(const struct field *field)
 {
-	__print_bin(field, "", true);
+	__read_bin(field, "", true);
 }
 
 /**
@@ -202,9 +202,9 @@ static void print_bin_rev(const struct field *field)
  * @field:	an initialized field
  * @value:	a string of byte values
  */
-static int update_bin_rev(struct field *field, char *value)
+static int write_bin_rev(struct field *field, char *value)
 {
-	return __update_bin(field, value, true);
+	return __write_bin(field, value, true);
 }
 
 /**
@@ -218,7 +218,7 @@ static int update_bin_rev(struct field *field, char *value)
  *
  * @field:	an initialized field to print
  */
-static void print_bin_ver(const struct field *field)
+static void read_bin_ver(const struct field *field)
 {
 	ASSERT(field && field->data);
 
@@ -245,7 +245,7 @@ static void print_bin_ver(const struct field *field)
  *
  * Returns 0 on success, -1 on failure.
  */
-static int update_bin_ver(struct field *field, char *value)
+static int write_bin_ver(struct field *field, char *value)
 {
 	ASSERT(field && field->data && field->name && value);
 
@@ -294,9 +294,9 @@ static int update_bin_ver(struct field *field, char *value)
  *
  * @field:	an initialized field to print
  */
-static void print_mac(const struct field *field)
+static void read_mac(const struct field *field)
 {
-	__print_bin(field, ":", false);
+	__read_bin(field, ":", false);
 }
 
 /**
@@ -305,9 +305,9 @@ static void print_mac(const struct field *field)
  * @field:	an initialized field
  * @value:	a colon delimited string of byte values (i.e. "1:02:3:ff")
  */
-static int update_mac(struct field *field, char *value)
+static int write_mac(struct field *field, char *value)
 {
-	return __update_bin_delim(field, value, ':');
+	return __write_bin_delim(field, value, ':');
 }
 
 static char *months[12] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -322,7 +322,7 @@ static char *months[12] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
  *
  * @field:	an initialized field to print
  */
-static void print_date(const struct field *field)
+static void read_date(const struct field *field)
 {
 	ASSERT(field && field->data);
 
@@ -395,7 +395,7 @@ static int validate_date(unsigned char day, unsigned char month,
  *
  * Returns 0 on success, -1 on failure.
  */
-static int update_date(struct field *field, char *value)
+static int write_date(struct field *field, char *value)
 {
 	ASSERT(field && field->data && field->name && value);
 
@@ -455,7 +455,7 @@ static int update_date(struct field *field, char *value)
  * print_ascii() - print the value of a field from type "ascii"
  * @field:	an initialized field to print
  */
-static void print_ascii(const struct field *field)
+static void read_ascii(const struct field *field)
 {
 	ASSERT(field && field->data);
 
@@ -486,7 +486,7 @@ static void print_ascii(const struct field *field)
  *
  * Returns 0 on success, -1 of failure (new string too long).
  */
-static int update_ascii(struct field *field, char *value)
+static int write_ascii(struct field *field, char *value)
 {
 	ASSERT(field && field->data && field->name && value);
 
@@ -510,7 +510,7 @@ static int update_ascii(struct field *field, char *value)
  *
  * @field:	an initialized field to print
  */
-static void print_reserved(const struct field *field)
+static void read_reserved(const struct field *field)
 {
 	ASSERT(field);
 	printf("(%d bytes)\n", field->data_size);
@@ -567,12 +567,12 @@ static bool is_named(const struct field *field, const char *str)
  * @field:	an initialized field to to print
  * @format:	the string format for printf()
  */
-static void print_field(const struct field *field, char *format)
+static void read_field(const struct field *field, char *format)
 {
 	ASSERT(field && field->name && field->ops && format);
 
 	printf(format, field->name);
-	field->ops->print_value(field);
+	field->ops->read_value(field);
 }
 
 /**
@@ -580,9 +580,9 @@ static void print_field(const struct field *field, char *format)
  *
  * @field:	an initialized field to to print
  */
-static void print_default(const struct field *field)
+static void read_default(const struct field *field)
 {
-	print_field(field, "%-30s");
+	read_field(field, "%-30s");
 }
 
 /**
@@ -590,27 +590,27 @@ static void print_default(const struct field *field)
  *
  * @field:	an initialized field to dump
  */
-static void print_dump(const struct field *field)
+static void read_dump(const struct field *field)
 {
 	if (field->type != FIELD_RESERVED)
-		print_field(field, "%s=");
+		read_field(field, "%s=");
 }
 
 #define OPS_UPDATABLE(type) { \
 	.get_data_size	= get_data_size, \
 	.is_named	= is_named, \
-	.print_value	= print_##type, \
-	.print		= print_default, \
-	.update		= update_##type, \
+	.read_value	= read_##type, \
+	.read		= read_default, \
+	.write		= write_##type, \
 	.clear		= clear_field, \
 }
 
 #define OPS_PRINTABLE(type) { \
 	.get_data_size	= get_data_size, \
 	.is_named	= is_named, \
-	.print_value	= print_##type, \
-	.print		= print_default, \
-	.update		= NULL, \
+	.read_value	= read_##type, \
+	.read		= read_default, \
+	.write		= NULL, \
 	.clear		= NULL, \
 }
 
@@ -641,5 +641,5 @@ void init_field(struct field *field, unsigned char *data,
 	field->data = data;
 
 	if (print_format == FORMAT_DUMP)
-		field->ops->print = print_dump;
+		field->ops->read = read_dump;
 }

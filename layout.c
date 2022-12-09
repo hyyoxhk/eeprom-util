@@ -88,7 +88,7 @@ static void print_layout(const struct layout *layout)
 	struct field *fields = layout->fields;
 
 	for (int i = 0; i < layout->num_of_fields; i++)
-		fields[i].ops->print(&fields[i]);
+		fields[i].ops->read(&fields[i]);
 }
 
 /*
@@ -246,7 +246,7 @@ static int update_fields(struct layout *layout, struct data_array *data)
 
 		if (*field_value == '\0')
 			field->ops->clear(field);
-		else if (field->ops->update(field, field_value))
+		else if (field->ops->write(field, field_value))
 			return 0;
 
 		updated_fields_cnt++;
