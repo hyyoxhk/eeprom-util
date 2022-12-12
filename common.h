@@ -73,9 +73,16 @@ struct data_array {
 	};
 };
 
+/** Visibility attribute */
+#if defined(__GNUC__) && __GNUC__ >= 4
+#define EXPORT __attribute__ ((visibility("default")))
+#else
+#define EXPORT
+#endif
+
 #define STRTOI_STR_CON 1
 #define STRTOI_STR_END 2
-int strtoi_base(char **str, int *dest, int base);
-int strtoi(char **str, int *dest);
+EXPORT int strtoi_base(char **str, int *dest, int base);
+EXPORT int strtoi(char **str, int *dest);
 
 #endif

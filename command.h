@@ -49,8 +49,8 @@ struct command {
 	int (*execute)(struct command *cmd);
 };
 
-struct command *new_command(enum action action, struct options *options,
+EXPORT struct command *new_command(enum action action, struct options *options,
 			    struct data_array *data);
-void free_command(struct command *cmd);
+EXPORT void free_command(struct command *cmd);
 
 #endif

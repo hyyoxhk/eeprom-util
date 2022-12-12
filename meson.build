@@ -1,6 +1,6 @@
 project('eeprom-util',
 	'c',
-	version: '3.2.0',
+	version: '4.0',
 	meson_version: '>= 0.52.1',
 	license : 'GPL-2.0-only',
 )
@@ -48,6 +48,31 @@ endif
 
 dep_json_c = dependency('json-c', version: '>= 0.13.1')
 
+inc_libeeprom = include_directories('.')
+
+srcs_libeeprom = [
+	'command.c',
+	'common.c',
+	'field.c',
+	'layout.c',
+	'parsing_libjson.c',
+	'linux_api.c'
+]
+
+lib_libeeprom = library(
+	'eeprom',
+	sources: srcs_libeeprom,
+	version: meson.project_version(),
+	dependencies: dep_json_c, 
+	include_directories : inc_libeeprom,
+	install: true
+)
+
+dep_libeeprom = declare_dependency(
+	link_with: lib_libeeprom,
+	include_directories: inc_libeeprom
+)
+
 srcs = [
 	'command.c',
 	'common.c',
@@ -60,10 +85,17 @@ srcs = [
 
 inc = include_directories('.')
 
+# executable(
+# 	'eeprom-util',
+# 	srcs,
+# 	c_args : extra_args,
+# 	include_directories: inc,
+# 	dependencies: dep_json_c,
+# )
+
 executable(
 	'eeprom-util',
-	srcs,
-	c_args : extra_args,
+	sources: 'main.c',
 	include_directories: inc,
-	dependencies: dep_json_c,
+	dependencies: dep_libeeprom
 )
