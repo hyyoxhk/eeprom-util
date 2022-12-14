@@ -96,6 +96,7 @@ inc = include_directories('.')
 executable(
 	'eeprom-util',
 	sources: 'main.c',
+	c_args : extra_args,
 	include_directories: inc,
 	dependencies: dep_libeeprom
 )
