@@ -1,0 +1,360 @@
+
+#include <stdio.h>
+#include "include/field.h"
+
+// Macro for printing field's input value error messages
+#define iveprintf(str, value, name) \
+	ieprintf("Invalid value \"%s\" for field \"%s\" - " str, value, name);
+
+static void __read_bin(const struct field *field, char *delimiter, bool reverse, 
+			char *str, size_t size)
+{
+	int i;
+	int from = reverse ? field->data_size - 1 : 0;
+	int to = reverse ? 0 : field->data_size - 1;
+	for (i = from; i != to; reverse ? i-- : i++)
+		snprintf(str, size, "%02x%s", field->data[i], delimiter);
+
+	snprintf(str, size, "%02x\n", field->data[i]);
+}
+
+static int __write_bin(struct field *field, const char *value, char *delimiter, bool reverse)
+{
+	int len = strlen(value);
+	int i = reverse ? len - 1 : 0;
+
+	/* each two characters in the string are fit in one byte */
+	if (len > field->data_size * 2) {
+		iveprintf("Value is too long", value, field->name);
+		return -1;
+	}
+
+	/* pad with zeros */
+	memset(field->data, 0, field->data_size);
+
+	/* i - string iterator, j - data iterator */
+	for (int j = 0; j < field->data_size; j++) {
+		int byte = 0;
+		char tmp[3] = { 0, 0, 0 };
+
+		if ((reverse && i < 0) || (!reverse && i >= len))
+			break;
+
+		for (int k = 0; k < 2; k++) {
+			if (reverse && i == 0) {
+				tmp[k] = value[i];
+				break;
+			}
+
+			tmp[k] = value[reverse ? i - 1 + k : i + k];
+		}
+
+		char *str = tmp;
+		if (strtoi_base(&str, &byte, 16) < 0 || byte < 0 || byte >> 8) {
+			iveprintf("Syntax error", value, field->name);
+			return -1;
+		}
+
+		field->data[j] = (unsigned char)byte;
+		i = reverse ? i - 2 : i + 2;
+	}
+
+	return 0;
+}
+
+/**
+ * read_bin() - read the value of a field from type "binary" to str
+ *
+ * Treat the field data as simple binary data, and read it as two digit
+ * hexadecimal values.
+ * Sample output: 0102030405060708090a
+ *
+ * @field:	an initialized field to read
+ */
+static void read_bin(const struct field *field, char *str, size_t size)
+{
+	__read_bin(field, "", false, str, size);
+}
+
+/**
+ * write_mac() - Update a mac address field which contains binary data
+ *
+ * @field:	an initialized field
+ * @value:	a colon delimited string of byte values (i.e. "1:02:3:ff")
+ */
+static int write_mac(struct field *field, char *value)
+{
+	return __write_bin(field, value, ':', false);
+}
+
+static char *months[12] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
+		    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+
+/**
+ * read_date() - read the value of a field from type "date"
+ *
+ * Treat the field data as simple binary data, and print it formatted as a date.
+ * Sample output: 07/Feb/2014
+ * 		  56/BAD/9999
+ *
+ * @field:	an initialized field to read
+ */
+static void read_date(const struct field *field, char *str, size_t size)
+{
+	snprintf(str, size, "%02d/", field->data[0]);
+	if (field->data[1] >= 1 && field->data[1] <= 12)
+		snprintf(str, size, "%s", months[field->data[1] - 1]);
+	else
+		snprintf(str, size, "BAD");
+
+	snprintf(str, size, "/%d\n", field->data[3] << 8 | field->data[2]);
+}
+
+static int validate_date(unsigned char day, unsigned char month,
+			unsigned int year)
+{
+	int days_in_february;
+
+	switch (month) {
+	case 0:
+	case 2:
+	case 4:
+	case 6:
+	case 7:
+	case 9:
+	case 11:
+		if (day > 31)
+			return -1;
+		break;
+	case 3:
+	case 5:
+	case 8:
+	case 10:
+		if (day > 30)
+			return -1;
+		break;
+	case 1:
+		days_in_february = 28;
+		if (year % 4 == 0) {
+			if (year % 100 != 0) {
+				days_in_february = 29;
+			} else if (year % 400 == 0) {
+				days_inwrite_mac_february = 29;
+			}
+		}
+
+		if (day > days_in_february)
+			return -1;
+
+		break;
+	default:
+		return -1;
+	}
+
+	return 0;
+}
+
+/**
+ * write_date() - write a date field which contains binary data
+ *
+ * This function takes a date string in the form of x/Mon/y (x and y are both
+ * decimal values), translates it to the binary representation, then writes it
+ * to the field.
+ *
+ * This function strictly enforces the data syntax, and will not update the
+ * field if there's any deviation from it. It also protects from overflow in the
+ * year value, and checks the validity of the date.
+ *
+ * @field:	an initialized field
+ * @value:	a date string
+ *
+ * Returns 0 on success, -1 on failure.
+ */
+static int write_date(struct field *field, char *value)
+{
+	ASSERT(field && field->data && field->name && value);
+
+	char *date = value;
+	int day, month, year;
+
+	if (strtoi(&date, &day) != STRTOI_STR_CON || *date != '/') {
+		iveprintf("Syntax error", value, field->name);
+		return -1;
+	}
+
+	if (day == 0) {
+		iveprintf("Invalid day", value, field->name);
+		return -1;
+	}
+
+	date++;
+	if (strlen(date) < 4 || *(date + 3) != '/') {
+		iveprintf("Syntax error", value, field->name);
+		return -1;
+	}
+
+	for (month = 1; month <= 12; month++)
+		if (!strncmp(date, months[month - 1], 3))
+			break;
+
+	if (strncmp(date, months[month - 1], 3)) {
+		iveprintf("Invalid month", value, field->name);
+		return -1;
+	}
+
+	date += 4;
+	if (strtoi(&date, &year) != STRTOI_STR_END) {
+		iveprintf("Syntax error", value, field->name);
+		return -1;
+	}
+
+	if (validate_date(day, month - 1, year)) {
+		iveprintf("Invalid date", value, field->name);
+		return -1;
+	}
+
+	if (year >> 16) {
+		iveprintf("Year overflow", value, field->name);
+		return -1;
+	}
+
+	field->data[0] = (unsigned char)day;
+	field->data[1] = (unsigned char)month;
+	field->data[2] = (unsigned char)year;
+	field->data[3] = (unsigned char)(year >> 8);
+
+	return 0;
+}
+
+/**
+ * read_ascii() - read the value of a field from type "ascii" to str
+ * @field:	an initialized field to read
+ */
+static void read_ascii(const struct field *field, char *str, size_t size)
+{
+	char format[8];
+	int *str = (int*)field->data;
+	int pattern = *str;
+	/* assuming field->data_size is a multiple of 32bit! */
+	int block_count = field->data_size / sizeof(int);
+	char *read_buf = "";
+
+	/* check if str is trivial (contains only 0's or only 0xff's), if so print nothing */
+	for (int i = 0; i < block_count - 1; i++) {
+		str++;
+		if (*str != pattern || (pattern != 0 && pattern != -1)) {
+			read_buf = (char*)field->data;
+			break;
+		}
+	}
+
+	sprintf(format, "%%.%ds\n", field->data_size);
+	printf(format, read_buf);
+}
+
+/**
+ * write_ascii() - write field with new data in ASCII form
+ * @field:	an initialized field
+ * @value:	the new string data
+ *
+ * Returns 0 on success, -1 of failure (new string too long).
+ */
+static int write_ascii(struct field *field, char *value)
+{
+	if (strlen(value) >= field->data_size) {
+		iveprintf("Value is too long", value, field->name);
+		return -1;
+	}
+
+	strncpy((char *)field->data, value, field->data_size - 1);
+	field->data[field->data_size - 1] = '\0';
+
+	return 0;
+}
+
+/**
+ * print_reserved() - print the size of a field from type "reserved"
+ *
+ * Print a notice that the following field_size bytes are reserved.
+ *
+ * Sample output: (64 bytes)
+ *
+ * @field:	an initialized field to print
+ */
+static void read_reserved(const struct field *field)
+{
+	printf("(%d bytes)\n", field->data_size);
+}
+
+/**
+ * clear_field() - clear a field
+ *
+ * A cleared field is defined by having all bytes set to 0xff.
+ *
+ * @field:	an initialized field to clear
+ */
+static void clear_field(struct field *field)
+{
+	ASSERT(field && field->data);
+	memset(field->data, 0xff, field->data_size);
+}
+
+/**
+ * get_data_size() - get the size of field's data
+ *
+ * @field:	an initialized field
+ *
+ * return: the size of field's data
+ */
+static int get_data_size(const struct field *field)
+{
+	ASSERT(field);
+	return field->data_size;
+}
+
+/**
+ * print_field() - print the given field using the given string format
+ *
+ * @field:	an initialized field to to print
+ * @format:	the string format for printf()
+ */
+static void read_field(const struct field *field, char *format)
+{
+	ASSERT(field && field->name && field->ops && format);
+
+	printf(format, field->name);
+	field->ops->read_value(field);
+}
+
+#define OPS_WRITEABLE(type) { \
+	.read_value	= read_##type, \
+	.read		= read_default, \
+	.write		= write_##type, \
+	.clear		= clear_field, \
+}
+
+#define OPS_READABLE(type) { \
+	.read_value	= read_##type, \
+	.read		= read_default, \
+	.write		= NULL, \
+	.clear		= NULL, \
+}
+
+/**
+ * init_field() - init field according to field.type
+ *
+ * @field:		an initialized field with a known field.type to init
+ * @data:		the binary data of the field
+ * @print_format:	the print format of the field
+ */
+void init_field(struct field *field, unsigned char *data,
+		enum print_format print_format)
+{
+	ASSERT(field && data);
+
+	field->ops = &field_ops[field->type];
+	field->data = data;
+
+	if (print_format == FORMAT_DUMP)
+		field->ops->read = read_dump;
+}
