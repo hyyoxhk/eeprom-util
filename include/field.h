@@ -14,13 +14,7 @@ enum field_type {
 	FIELD_RAW,
 };
 
-struct field {
-	char name[64];
-	char short_name[16];
-	int data_size;
-	enum field_type type;
-	unsigned char *data;
-};
+struct field;
 
 struct field_ops {
 	int (*get_data_size)(const struct field *field);
@@ -29,6 +23,15 @@ struct field_ops {
 	void (*read)(const struct field *field);
 	int (*write)(struct field *field, char *value);
 	void (*clear)(struct field *field);
+};
+
+struct field {
+	char name[64];
+	char short_name[16];
+	int data_size;
+	enum field_type type;
+	unsigned char *data;
+	struct field_ops *ops;
 };
 
 #endif

@@ -83,7 +83,7 @@ srcs = [
 	'parsing_libjson.c'
 ]
 
-inc = include_directories('.')
+inc = include_directories('include')
 
 # executable(
 # 	'eeprom-util',
