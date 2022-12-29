@@ -15,10 +15,16 @@
 #define EXPORT
 #endif
 
-EXPORT int eeprom_init(int i2c_bus, int i2c_addr);
+struct eeprom_api {
+	int (*read)(unsigned char *buf, int offset, int size);
+	int (*write)(unsigned char *buf, int offset, int size);	
+};
 
-EXPORT int eeprom_read(struct field *field, char *buf);
 
-EXPORT int eeprom_write(struct field *field, char *buf);
+EXPORT int eeprom_init(struct eeprom_api *api, int i2c_bus, int i2c_addr);
+
+EXPORT int eeprom_read(struct layout *layout, char *field, char *value);
+
+EXPORT int eeprom_write(struct layout *layout, char *field, char *value);
 
 #endif
