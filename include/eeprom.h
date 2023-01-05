@@ -6,13 +6,18 @@
 #ifndef _EEPROM_H_
 #define _EEPROM_H_
 
+/* Make this header file easier to include in C++ code */
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "field.h"
 
 /** visibility attribute */
 #if defined(__GNUC__) && __GNUC__ >= 4
-#define EXPORT __attribute__ ((visibility("default")))
+#define EEPROM_API __attribute__ ((visibility("default")))
 #else
-#define EXPORT
+#define EEPROM_API
 #endif
 
 struct eeprom_api {
@@ -21,10 +26,14 @@ struct eeprom_api {
 };
 
 
-EXPORT int eeprom_init(struct eeprom_api *api, int i2c_bus, int i2c_addr);
+EEPROM_API int eeprom_init(struct eeprom_api *api, int i2c_bus, int i2c_addr);
 
-EXPORT int eeprom_read(struct layout *layout, char *field, char *value);
+EEPROM_API int eeprom_read(struct layout *layout, char *field, char *value);
 
-EXPORT int eeprom_write(struct layout *layout, char *field, char *value);
+EEPROM_API int eeprom_write(struct layout *layout, char *field, char *value);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
