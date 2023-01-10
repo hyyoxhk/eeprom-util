@@ -1,0 +1,55 @@
+{
+    "layout": {
+        "version": 5,
+        "field": [
+            {
+                "name": "Machine Name",
+                "short_name": "machine",
+                "data_size": 32,
+                "type": 4
+            },
+            {
+                "name": "Distro Name",
+                "short_name": "distro",
+                "data_size": 32,
+                "type": 4
+            },
+            {
+                "name": "System Version",
+                "short_name": "version",
+                "data_size": 2,
+                "type": 3
+            },
+            {
+                "name": "Model Name",
+                "short_name": "model",
+                "data_size": 16,
+                "type": 3
+            },
+            {
+                "name": "Product ID",
+                "short_name": "id",
+                "data_size": 32,
+                "type": 3
+            },
+            {
+                "name": "Serial Number",
+                "short_name": "sn",
+                "data_size": 16,
+                "type": 3
+            },
+            {
+                "name": "Reserved fields",
+                "short_name": "rsvd",
+                "data_size": 32,
+                "type": 6
+            },
+            {
+                "name": "MAC Address",
+                "short_name": "mac",
+                "data_size": 6,
+                "type": 4
+            }
+        ]
+    }
+}
