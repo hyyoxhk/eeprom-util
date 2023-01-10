@@ -1,6 +1,21 @@
-// SPDX-License-Identifier: GPL-2.0-only
 /*
+ * Copyright (C) 2009-2017 CompuLab, Ltd.
  * Copyright (C) 2022 He Yong <hyyoxhk@163.com>
+ * Authors: Nikita Kiryanov <nikita@compulab.co.il>
+ *	    Igor Grinberg <grinberg@compulab.co.il>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include <stdio.h>
@@ -8,7 +23,8 @@
 #include <fcntl.h>
 #include <linux/i2c.h>
 #include <linux/i2c-dev.h>
-#include "include/eeprom.h"
+
+#include "include/hal.h"
 
 /*
  * Prepares a device file fd for read or write.
@@ -109,24 +125,23 @@ static int driver_write(int fd, unsigned char *buf, int offset, int size)
 #define PRINT_DRIVER_HINT(x) eprintf("Is "x" driver loaded?\n")
 
 #define DRIVER_DEV_PATH "/sys/bus/i2c/devices"
-int eeprom_init(struct eeprom_api *api, int i2c_bus, int i2c_addr)
+int hal_init(struct hal *hal, int i2c_bus, int i2c_addr)
 {
 	char i2cdev_fname[13];
 	char eeprom_dev_fname[40];
 	int saved_errno;
-	int fd;
 
 	sprintf(i2cdev_fname, "/dev/i2c-%d", i2c_bus);
-	fd = open_device_file(i2cdev_fname, i2c_addr);
-	if (fd >= 0) {
-		api->read = i2c_read;
-		api->write = i2c_write;
+	hal->fd = open_device_file(i2cdev_fname, i2c_addr);
+	if (hal->fd >= 0) {
+		hal->read = i2c_read;
+		hal->write = i2c_write;
 		return 0;
 	}
 
 	sprintf(eeprom_dev_fname, DRIVER_DEV_PATH"/%d-00%02x/eeprom", i2c_bus, i2c_addr);
-	fd = open_device_file(eeprom_dev_fname, -1);
-	if (fd < 0) {
+	hal->fd = open_device_file(eeprom_dev_fname, -1);
+	if (hal->fd < 0) {
 		/* print error which occurred when opening i2c-dev file */
 		eprintf("Error, %s access failed: %s (%d)\n",
 			i2cdev_fname, strerror(saved_errno), -saved_errno);
@@ -139,8 +154,8 @@ int eeprom_init(struct eeprom_api *api, int i2c_bus, int i2c_addr)
 		if (errno == ENOENT)
 			PRINT_DRIVER_HINT("EEPROM");
 	} else {
-		api->read = driver_read;
-		api->write = driver_write;
+		hal->read = driver_read;
+		hal->write = driver_write;
 		return 0;
 	}
 
@@ -148,4 +163,9 @@ int eeprom_init(struct eeprom_api *api, int i2c_bus, int i2c_addr)
 	eprintf("\n");
 
 	return -1;
+}
+
+int hal_read()
+{
+	
 }

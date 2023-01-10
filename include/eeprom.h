@@ -11,6 +11,7 @@
 extern "C" {
 #endif
 
+#include "api.h"
 #include "field.h"
 
 /** visibility attribute */
@@ -20,17 +21,16 @@ extern "C" {
 #define EEPROM_API
 #endif
 
-struct eeprom_api {
-	int (*read)(unsigned char *buf, int offset, int size);
-	int (*write)(unsigned char *buf, int offset, int size);	
+struct eeprom {
+	struct api *api;
 };
 
 
-EEPROM_API int eeprom_init(struct eeprom_api *api, int i2c_bus, int i2c_addr);
+EEPROM_API int eeprom_init(struct eeprom *eeprom, int i2c_bus, int i2c_addr);
 
-EEPROM_API int eeprom_read(struct layout *layout, char *field, char *value);
+EEPROM_API int eeprom_read(struct eeprom *eeprom, char *field, char *value);
 
-EEPROM_API int eeprom_write(struct layout *layout, char *field, char *value);
+EEPROM_API int eeprom_write(struct eeprom *eeprom, char *field, char *value);
 
 #ifdef __cplusplus
 }
