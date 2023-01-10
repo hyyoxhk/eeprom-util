@@ -36,7 +36,7 @@ static int open_device_file(char *dev_file, int i2c_addr)
 {
 	int fd;
 
-        fd = open(dev_file, O_RDWR);
+	fd = open(dev_file, O_RDWR);
 	if (fd < 0)
 		return -1;
 
@@ -165,7 +165,12 @@ int hal_init(struct hal *hal, int i2c_bus, int i2c_addr)
 	return -1;
 }
 
-int hal_read()
+int hal_read(struct hal *hal, unsigned char *buf, int off, int size)
 {
-	
+	return hal->read(hal->fd, buf, off, size);
+}
+
+int hal_write(struct hal *hal, unsigned char *buf, int off, int size)
+{
+	return hal->write(hal->fd, buf, off, size);
 }

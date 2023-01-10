@@ -28,8 +28,8 @@ struct hal {
 
 int hal_init(struct hal *hal, int i2c_bus, int i2c_addr);
 
-int hal_read(struct hal *hal, unsigned char *buf, int offset, int size);
+int hal_read(struct hal *hal, unsigned char *buf, int off, int size);
 
-int hal_write(struct hal *hal, unsigned char *buf, int offset, int size);
+int hal_write(struct hal *hal, unsigned char *buf, int off, int size);
 
 #endif
