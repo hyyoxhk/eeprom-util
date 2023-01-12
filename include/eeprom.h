@@ -11,9 +11,6 @@
 extern "C" {
 #endif
 
-#include "api.h"
-#include "field.h"
-
 /** visibility attribute */
 #if defined(__GNUC__) && __GNUC__ >= 4
 #define EEPROM_API __attribute__ ((visibility("default")))
@@ -22,9 +19,8 @@ extern "C" {
 #endif
 
 struct eeprom {
-	struct api *api;
+	struct hal *hal;
 };
-
 
 EEPROM_API int eeprom_init(struct eeprom *eeprom, int i2c_bus, int i2c_addr);
 

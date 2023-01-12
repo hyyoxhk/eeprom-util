@@ -21,15 +21,14 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "common.h"
 #include "field.h"
 
 // Macro for printing field's input value error messages
 #define iveprintf(str, value, name) \
 	ieprintf("Invalid value \"%s\" for field \"%s\" - " str, value, name);
 
-static void __read_bin(const struct field *field,
-			char *delimiter, bool reverse)
+static void __read_bin(const struct field *field, char *delimiter, bool reverse,
+			char *str, size_t size)
 {
 	ASSERT(field && field->data && delimiter);
 
@@ -37,9 +36,9 @@ static void __read_bin(const struct field *field,
 	int from = reverse ? field->data_size - 1 : 0;
 	int to = reverse ? 0 : field->data_size - 1;
 	for (i = from; i != to; reverse ? i-- : i++)
-		printf("%02x%s", field->data[i], delimiter);
-	// snprintf
-	printf("%02x\n", field->data[i]);
+		snprintf(str, size, "%02x%s", field->data[i], delimiter);
+
+	snprintf(str, size, "%02x\n", field->data[i]);
 }
 
 static int __write_bin(struct field *field, const char *value, bool reverse)
@@ -118,25 +117,25 @@ static int __write_bin_delim(struct field *field, char *value, char delimiter)
 }
 
 /**
- * print_bin() - print the value of a field from type "binary"
+ * read_bin() - read the value of a field from type "binary" to str
  *
- * Treat the field data as simple binary data, and print it as two digit
+ * Treat the field data as simple binary data, and read it as two digit
  * hexadecimal values.
  * Sample output: 0102030405060708090a
  *
- * @field:	an initialized field to print
+ * @field:	an initialized field to read
  */
-static void read_bin(const struct field *field)
+static void read_bin(const struct field *field, char *str, size_t size)
 {
-	__read_bin(field, "", false);
+	__read_bin(field, "", false, str, size);
 }
 
 /**
- * print_bin_raw() - print raw data both in hexadecimal and in ascii format
+ * read_bin_raw() - read raw data both in hexadecimal and in ascii format to str
  *
- * @field:	an initialized field to print
+ * @field:	an initialized field to read
  */
-static void read_bin_raw(const struct field *field)
+static void read_bin_raw(const struct field *field, char *str, size_t size)
 {
 	ASSERT(field && field->data);
 

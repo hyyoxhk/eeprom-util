@@ -1,22 +1,3 @@
-/*
- * Copyright (C) 2009-2011 CompuLab, Ltd.
- * Authors: Nikita Kiryanov <nikita@compulab.co.il>
- *	    Igor Grinberg <grinberg@compulab.co.il>
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
 #ifndef _FIELD_
 #define _FIELD_
 
@@ -33,19 +14,7 @@ enum field_type {
 	FIELD_RAW,
 };
 
-enum print_format {
-	FORMAT_DEFAULT,
-	FORMAT_DUMP,
-};
-
-struct field {
-	char name[64];
-	char short_name[16];
-	int data_size;
-	enum field_type type;
-	unsigned char *data;
-	struct field_ops *ops;
-};
+struct field;
 
 struct field_ops {
 	int (*get_data_size)(const struct field *field);
@@ -56,7 +25,13 @@ struct field_ops {
 	void (*clear)(struct field *field);
 };
 
-void init_field(struct field *field, unsigned char *data,
-		enum print_format print_format);
+struct field {
+	char name[64];
+	char short_name[16];
+	int data_size;
+	enum field_type type;
+	unsigned char *data;
+	struct field_ops *ops;
+};
 
 #endif
