@@ -51,12 +51,10 @@ dep_json_c = dependency('json-c', version: '>= 0.13.1')
 inc_libeeprom = include_directories('.')
 
 srcs_libeeprom = [
-	'command.c',
-	'common.c',
+	'eeprom.c',
 	'field.c',
-	'layout.c',
-	'parsing_libjson.c',
-	'linux_api.c'
+	'hal.c',
+	'parsing_libjson.c'
 ]
 
 lib_libeeprom = library(
@@ -71,32 +69,4 @@ lib_libeeprom = library(
 dep_libeeprom = declare_dependency(
 	link_with: lib_libeeprom,
 	include_directories: inc_libeeprom
-)
-
-srcs = [
-	'command.c',
-	'common.c',
-	'field.c',
-	'layout.c',
-	'linux_api.c',
-	'main.c',
-	'parsing_libjson.c'
-]
-
-inc = include_directories('include')
-
-# executable(
-# 	'eeprom-util',
-# 	srcs,
-# 	c_args : extra_args,
-# 	include_directories: inc,
-# 	dependencies: dep_json_c,
-# )
-
-executable(
-	'eeprom-util',
-	sources: 'main.c',
-	c_args : extra_args,
-	include_directories: inc,
-	dependencies: dep_libeeprom
 )

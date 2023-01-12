@@ -7,15 +7,15 @@
 
 int eeprom_init(struct eeprom *eeprom, int i2c_bus, int i2c_addr)
 {
-	
+	return 0;
 }
 
 int eeprom_read(struct eeprom *eeprom, char *field, char *value)
 {
-
+	return 0;
 }
 
 int eeprom_write(struct eeprom *eeprom, char *field, char *value)
 {
-
+	return 0;
 }

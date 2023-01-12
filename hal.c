@@ -19,12 +19,17 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 #include <errno.h>
+#include <time.h>
 #include <fcntl.h>
+#include <unistd.h>
 #include <linux/i2c.h>
 #include <linux/i2c-dev.h>
+#include <sys/ioctl.h>
 
-#include "include/hal.h"
+#include "hal.h"
+#include "common.h"
 
 /*
  * Prepares a device file fd for read or write.
@@ -138,6 +143,8 @@ int hal_init(struct hal *hal, int i2c_bus, int i2c_addr)
 		hal->write = i2c_write;
 		return 0;
 	}
+
+	saved_errno = errno;
 
 	sprintf(eeprom_dev_fname, DRIVER_DEV_PATH"/%d-00%02x/eeprom", i2c_bus, i2c_addr);
 	hal->fd = open_device_file(eeprom_dev_fname, -1);

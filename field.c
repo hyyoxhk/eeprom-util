@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009-2011 CompuLab, Ltd.
+ * Copyright (C) 2022 He Yong <hyyoxhk@163.com>
  * Authors: Nikita Kiryanov <nikita@compulab.co.il>
  *	    Igor Grinberg <grinberg@compulab.co.il>
  *
@@ -21,7 +22,57 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
+
+#include <errno.h>
+
+#include "common.h"
 #include "field.h"
+
+/*
+ * strtoi_base - convert to int using the given numerical base and point
+ *		 to the first character after the number
+ *
+ * @str:	A pointer to a string containing an integer number at the
+ *		beginning. On success the pointer will point to the first
+ *		character after the number.
+ * @dest:	A pointer where to save the int result
+ * @base:	The numerical base of the characters in the input string.
+ * 		If 0 the base is determined by the format.
+ *
+ * Returns:	STRTOI_STR_END on success and all characters read.
+ *		STRTOI_STR_CON on success and additional characters remain.
+ *		-ERANGE or -EINVAL on failure
+ */
+int strtoi_base(char **str, int *dest, int base)
+{
+	ASSERT(str && *str && dest);
+
+	if (**str == '\0')
+		return -EINVAL;
+
+	char *endptr;
+	errno = 0;
+	int num = strtol(*str, &endptr, base);
+
+	if (errno != 0)
+		return -errno;
+
+	if (*str == endptr)
+		return -EINVAL;
+
+	*dest = num;
+	*str = endptr;
+
+	if (*endptr == 0)
+		return STRTOI_STR_END;
+
+	return STRTOI_STR_CON;
+}
+
+int strtoi(char **str, int *dest)
+{
+	return strtoi_base(str, dest, 0);
+}
 
 // Macro for printing field's input value error messages
 #define iveprintf(str, value, name) \
@@ -30,7 +81,7 @@
 static void __read_bin(const struct field *field, char *delimiter, bool reverse,
 			char *str, size_t size)
 {
-	ASSERT(field && field->data && delimiter);
+	//ASSERT(field && field->data && delimiter);
 
 	int i;
 	int from = reverse ? field->data_size - 1 : 0;
@@ -43,7 +94,7 @@ static void __read_bin(const struct field *field, char *delimiter, bool reverse,
 
 static int __write_bin(struct field *field, const char *value, bool reverse)
 {
-	ASSERT(field && field->data && field->name && value);
+	//ASSERT(field && field->data && field->name && value);
 
 	int len = strlen(value);
 	int i = reverse ? len - 1 : 0;
@@ -87,9 +138,11 @@ static int __write_bin(struct field *field, const char *value, bool reverse)
 	return 0;
 }
 
+
+
 static int __write_bin_delim(struct field *field, char *value, char delimiter)
 {
-	ASSERT(field && field->data && field->name && value);
+	//ASSERT(field && field->data && field->name && value);
 
 	int i, val;
 	char *bin = value;
@@ -116,10 +169,11 @@ static int __write_bin_delim(struct field *field, char *value, char delimiter)
 	return 0;
 }
 
+
 /**
  * read_bin() - read the value of a field from type "binary" to str
  *
- * Treat the field data as simple binary data, and read it as two digit
+ * Treat the field data as simple binary data, and print it as two digit
  * hexadecimal values.
  * Sample output: 0102030405060708090a
  *
@@ -135,6 +189,7 @@ static void read_bin(const struct field *field, char *str, size_t size)
  *
  * @field:	an initialized field to read
  */
+//TODO
 static void read_bin_raw(const struct field *field, char *str, size_t size)
 {
 	ASSERT(field && field->data);
@@ -164,7 +219,7 @@ static void read_bin_raw(const struct field *field, char *str, size_t size)
 }
 
 /**
- * update_bin() - Update field with new data in binary form
+ * write_bin() - Update field with new data in binary form
  *
  * @field:	an initialized field
  * @value:	a string of values (i.e. "10b234a")
@@ -175,7 +230,7 @@ static int write_bin(struct field *field, char *value)
 }
 
 /**
- * print_bin_rev() - print the value of a field from type "reversed"
+ * read_bin_rev() - print the value of a field from type "reversed" to str
  *
  * Treat the field data as simple binary data, and print it in reverse order
  * as two digit hexadecimal values.
@@ -185,14 +240,40 @@ static int write_bin(struct field *field, char *value)
  *
  * @field:	an initialized field to print
  */
-static void read_bin_rev(const struct field *field)
+static void read_bin_rev(const struct field *field, char *str, size_t size)
 {
-	__read_bin(field, "", true);
+	__read_bin(field, "", true, str, size);
 }
 
 /**
- * update_bin_rev() - Update field with new data in binary form, storing it in
- * 		      reverse
+ * clear_field() - clear a field
+ *
+ * A cleared field is defined by having all bytes set to 0xff.
+ *
+ * @field:	an initialized field to clear
+ */
+static void clear_field(struct field *field)
+{
+	ASSERT(field && field->data);
+	memset(field->data, 0xff, field->data_size);
+}
+
+/**
+ * read_field() - print the given field using the given string format to str
+ *
+ * @field:	an initialized field to to read
+ * @format:	the string format for printf()
+ */
+static void read_field(const struct field *field, char *format, char *str, size_t size)
+{
+	ASSERT(field && field->name && field->ops && format);
+
+	snprintf(str, size, format, field->name);
+	field->ops->read(field, str, size);
+}
+
+/**
+ * write_bin_rev() - Update field with new data in binary form, storing it in reverse
  *
  * This function takes a string of byte values, and stores them
  * in the field in the reverse order. i.e. if the input string was "1234",
@@ -207,7 +288,7 @@ static int write_bin_rev(struct field *field, char *value)
 }
 
 /**
- * print_bin_ver() - print the value of a field from type "version"
+ * read_bin_ver() - print the value of a field from type "version" to str
  *
  * Treat the field data as simple binary data, and print it formatted as a
  * version number (2 digits after decimal point).
@@ -215,9 +296,9 @@ static int write_bin_rev(struct field *field, char *value)
  *
  * Sample output: 123.45
  *
- * @field:	an initialized field to print
+ * @field:	an initialized field to read
  */
-static void read_bin_ver(const struct field *field)
+static void read_bin_ver(const struct field *field, char *str, size_t size)
 {
 	ASSERT(field && field->data);
 
@@ -226,11 +307,11 @@ static void read_bin_ver(const struct field *field)
 		field->data[1] = 0;
 	}
 
-	printf("%#.2f\n", (field->data[1] << 8 | field->data[0]) / 100.0);
+	snprintf(str, size, "%#.2f\n", (field->data[1] << 8 | field->data[0]) / 100.0);
 }
 
 /**
- * update_bin_ver() - update a "version field" which contains binary data
+ * write_bin_ver() - update a "version field" which contains binary data
  *
  * This function takes a version string in the form of x.y (x and y are both
  * decimal values, y is limited to two digits), translates it to the binary
@@ -285,21 +366,20 @@ static int write_bin_ver(struct field *field, char *value)
 }
 
 /**
- * print_mac_addr() - print the value of a field from type "mac"
+ * read_mac() - read the value of a field from type "mac" to str
  *
- * Treat the field data as simple binary data, and print it formatted as a MAC
- * address.
+ * Treat the field data as simple binary data, and read it formatted as a MAC address.
  * Sample output: 01:02:03:04:05:06
  *
- * @field:	an initialized field to print
+ * @field:	an initialized field to read
  */
-static void read_mac(const struct field *field)
+static void read_mac(const struct field *field, char *str, size_t size)
 {
-	__read_bin(field, ":", false);
+	__read_bin(field, ":", false, str, size);
 }
 
 /**
- * update_mac() - Update a mac address field which contains binary data
+ * write_mac() - Update a mac address field which contains binary data
  *
  * @field:	an initialized field
  * @value:	a colon delimited string of byte values (i.e. "1:02:3:ff")
@@ -313,15 +393,16 @@ static char *months[12] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
 		    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
 /**
- * print_date() - print the value of a field from type "date"
+ * read_date() - read the value of a field from type "date" to str
  *
  * Treat the field data as simple binary data, and print it formatted as a date.
  * Sample output: 07/Feb/2014
  * 		  56/BAD/9999
  *
- * @field:	an initialized field to print
+ * @field:	an initialized field to read
  */
-static void read_date(const struct field *field)
+// TODO
+static void read_date(const struct field *field, char *str, size_t size)
 {
 	ASSERT(field && field->data);
 
@@ -331,7 +412,7 @@ static void read_date(const struct field *field)
 	else
 		printf("BAD");
 
-	printf("/%d\n", field->data[3] << 8 | field->data[2]);
+	snprintf(str, size, "/%d\n", field->data[3] << 8 | field->data[2]);
 }
 
 static int validate_date(unsigned char day, unsigned char month,
@@ -379,7 +460,7 @@ static int validate_date(unsigned char day, unsigned char month,
 }
 
 /**
- * update_date() - update a date field which contains binary data
+ * write_date() - update a date field which contains binary data
  *
  * This function takes a date string in the form of x/Mon/y (x and y are both
  * decimal values), translates it to the binary representation, then writes it
@@ -451,10 +532,10 @@ static int write_date(struct field *field, char *value)
 }
 
 /**
- * print_ascii() - print the value of a field from type "ascii"
- * @field:	an initialized field to print
+ * read_ascii() - read the value of a field from type "ascii" to str
+ * @field:	an initialized field to read
  */
-static void read_ascii(const struct field *field)
+static void read_ascii(const struct field *field, char *str1, size_t size)
 {
 	ASSERT(field && field->data);
 
@@ -463,23 +544,23 @@ static void read_ascii(const struct field *field)
 	int pattern = *str;
 	/* assuming field->data_size is a multiple of 32bit! */
 	int block_count = field->data_size / sizeof(int);
-	char *print_buf = "";
+	char *read_buf = "";
 
 	/* check if str is trivial (contains only 0's or only 0xff's), if so print nothing */
 	for (int i = 0; i < block_count - 1; i++) {
 		str++;
 		if (*str != pattern || (pattern != 0 && pattern != -1)) {
-			print_buf = (char*)field->data;
+			read_buf = (char*)field->data;
 			break;
 		}
 	}
 
 	sprintf(format, "%%.%ds\n", field->data_size);
-	printf(format, print_buf);
+	snprintf(str1, size, format, read_buf);
 }
 
 /**
- * update_ascii() - Update field with new data in ASCII form
+ * write_ascii() - Update field with new data in ASCII form
  * @field:	an initialized field
  * @value:	the new string data
  *
@@ -501,114 +582,51 @@ static int write_ascii(struct field *field, char *value)
 }
 
 /**
- * print_reserved() - print the size of a field from type "reserved"
+ * read_reserved() - read the size of a field from type "reserved" to str
  *
- * Print a notice that the following field_size bytes are reserved.
+ * Read a notice that the following field_size bytes are reserved.
  *
  * Sample output: (64 bytes)
  *
- * @field:	an initialized field to print
+ * @field:	an initialized field to read
  */
-static void read_reserved(const struct field *field)
+static void read_reserved(const struct field *field, char *str, size_t size)
 {
 	ASSERT(field);
-	printf("(%d bytes)\n", field->data_size);
+	snprintf(str, size, "(%d bytes)\n", field->data_size);
 }
 
 /**
- * clear_field() - clear a field
+ * read_default() - read the given field using the default format to str
  *
- * A cleared field is defined by having all bytes set to 0xff.
- *
- * @field:	an initialized field to clear
+ * @field:	an initialized field to to read
  */
-static void clear_field(struct field *field)
+static void read_default(const struct field *field, char *str, size_t size)
 {
-	ASSERT(field && field->data);
-	memset(field->data, 0xff, field->data_size);
+	read_field(field, "%-30s", str, size);
 }
 
 /**
- * get_data_size() - get the size of field's data
- *
- * @field:	an initialized field
- *
- * return: the size of field's data
- */
-static int get_data_size(const struct field *field)
-{
-	ASSERT(field);
-	return field->data_size;
-}
-
-/**
- * is_named() - check if any of the field's names match the given string
- *
- * @field:	an initialized field to check
- * @str:	the string to check
- *
- * Returns:	true if field's names matches, false otherwise.
- */
-static bool is_named(const struct field *field, const char *str)
-{
-	ASSERT(field && field->name && field->short_name && str);
-
-	if (field->type != FIELD_RESERVED && field->type != FIELD_RAW &&
-	    (!strcmp(field->name, str) || !strcmp(field->short_name, str)))
-		return true;
-
-	return false;
-}
-
-/**
- * print_field() - print the given field using the given string format
- *
- * @field:	an initialized field to to print
- * @format:	the string format for printf()
- */
-static void read_field(const struct field *field, char *format)
-{
-	ASSERT(field && field->name && field->ops && format);
-
-	printf(format, field->name);
-	field->ops->read_value(field);
-}
-
-/**
- * print_default() - print the given field using the default format
- *
- * @field:	an initialized field to to print
- */
-static void read_default(const struct field *field)
-{
-	read_field(field, "%-30s");
-}
-
-/**
- * print_dump() - print the given field using the dump format
+ * read_dump() - read the given field using the dump format to str
  *
  * @field:	an initialized field to dump
  */
-static void read_dump(const struct field *field)
+static void read_dump(const struct field *field, char *str, size_t size)
 {
 	if (field->type != FIELD_RESERVED)
-		read_field(field, "%s=");
+		read_field(field, "%s=", str, size);
 }
 
 #define OPS_UPDATABLE(type) { \
-	.get_data_size	= get_data_size, \
-	.is_named	= is_named, \
-	.read_value	= read_##type, \
-	.read		= read_default, \
+	.read		= read_##type, \
+	.read_default	= read_default, \
 	.write		= write_##type, \
 	.clear		= clear_field, \
 }
 
 #define OPS_PRINTABLE(type) { \
-	.get_data_size	= get_data_size, \
-	.is_named	= is_named, \
-	.read_value	= read_##type, \
-	.read		= read_default, \
+	.read		= read_##type, \
+	.read_default	= read_default, \
 	.write		= NULL, \
 	.clear		= NULL, \
 }
@@ -631,14 +649,14 @@ static struct field_ops field_ops[] = {
  * @data:		the binary data of the field
  * @print_format:	the print format of the field
  */
-void init_field(struct field *field, unsigned char *data,
-		enum print_format print_format)
+void field_init(struct field *field, unsigned char *data,
+		enum read_format read_format)
 {
 	ASSERT(field && data);
 
 	field->ops = &field_ops[field->type];
 	field->data = data;
 
-	if (print_format == FORMAT_DUMP)
+	if (read_format == FORMAT_DUMP)
 		field->ops->read = read_dump;
 }

@@ -14,13 +14,16 @@ enum field_type {
 	FIELD_RAW,
 };
 
+enum read_format {
+	FORMAT_DEFAULT,
+	FORMAT_DUMP,
+};
+
 struct field;
 
 struct field_ops {
-	int (*get_data_size)(const struct field *field);
-	bool (*is_named)(const struct field *field, const char *str);
-	void (*read_value)(const struct field *field);
-	void (*read)(const struct field *field);
+	void (*read)(const struct field *field, char *str, size_t size);
+	void (*read_default)(const struct field *field, char *str, size_t size);
 	int (*write)(struct field *field, char *value);
 	void (*clear)(struct field *field);
 };
@@ -33,5 +36,8 @@ struct field {
 	unsigned char *data;
 	struct field_ops *ops;
 };
+
+void field_init(struct field *field, unsigned char *data,
+		enum read_format read_format);
 
 #endif
