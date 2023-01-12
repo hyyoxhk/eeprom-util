@@ -48,12 +48,13 @@ endif
 
 dep_json_c = dependency('json-c', version: '>= 0.13.1')
 
-inc_libeeprom = include_directories('.')
+inc_libeeprom = include_directories('include')
 
 srcs_libeeprom = [
 	'eeprom.c',
 	'field.c',
 	'hal.c',
+	'layout.c',
 	'parsing_libjson.c'
 ]
 

@@ -21,6 +21,7 @@
 #ifndef _LAYOUT_
 #define _LAYOUT_
 
+#include "common.h"
 #include "field.h"
 
 #define EEPROM_SIZE 256
@@ -55,7 +56,8 @@ struct layout {
 
 struct layout *new_layout(unsigned char *buf, unsigned int buf_size,
 			  int layout_version,
-			  enum print_format print_format);
+			  enum read_format read_format);
+
 void free_layout(struct layout *layout);
 
 #endif

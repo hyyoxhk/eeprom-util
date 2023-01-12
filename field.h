@@ -2,6 +2,7 @@
 #define _FIELD_
 
 #include <stdbool.h>
+#include <stddef.h>
 
 enum field_type {
 	FIELD_BINARY,
@@ -22,6 +23,7 @@ enum read_format {
 struct field;
 
 struct field_ops {
+	bool (*is_named)(const struct field *field, const char *str);
 	void (*read)(const struct field *field, char *str, size_t size);
 	void (*read_default)(const struct field *field, char *str, size_t size);
 	int (*write)(struct field *field, char *value);

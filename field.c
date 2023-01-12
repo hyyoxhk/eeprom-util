@@ -22,7 +22,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
-
 #include <errno.h>
 
 #include "common.h"
@@ -256,6 +255,25 @@ static void clear_field(struct field *field)
 {
 	ASSERT(field && field->data);
 	memset(field->data, 0xff, field->data_size);
+}
+
+/**
+ * is_named() - check if any of the field's names match the given string
+ *
+ * @field:	an initialized field to check
+ * @str:	the string to check
+ *
+ * Returns:	true if field's names matches, false otherwise.
+ */
+static bool is_named(const struct field *field, const char *str)
+{
+	ASSERT(field && field->name && field->short_name && str);
+
+	if (field->type != FIELD_RESERVED && field->type != FIELD_RAW &&
+	    (!strcmp(field->name, str) || !strcmp(field->short_name, str)))
+		return true;
+
+	return false;
 }
 
 /**
@@ -618,6 +636,7 @@ static void read_dump(const struct field *field, char *str, size_t size)
 }
 
 #define OPS_UPDATABLE(type) { \
+	.is_named	= is_named, \
 	.read		= read_##type, \
 	.read_default	= read_default, \
 	.write		= write_##type, \
@@ -625,6 +644,7 @@ static void read_dump(const struct field *field, char *str, size_t size)
 }
 
 #define OPS_PRINTABLE(type) { \
+	.is_named	= is_named, \
 	.read		= read_##type, \
 	.read_default	= read_default, \
 	.write		= NULL, \
