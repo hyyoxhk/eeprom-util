@@ -23,3 +23,5 @@ eeprom-util
 auto_generated.h
 /dep
 /obj
+/.vscode
+/build*
