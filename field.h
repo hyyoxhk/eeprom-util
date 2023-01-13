@@ -24,8 +24,8 @@ struct field;
 
 struct field_ops {
 	bool (*is_named)(const struct field *field, const char *str);
-	void (*read)(const struct field *field, char *str, size_t size);
-	void (*read_default)(const struct field *field, char *str, size_t size);
+	int (*read)(const struct field *field, char *str, size_t size);
+	int (*read_default)(const struct field *field, char *str, size_t size);
 	int (*write)(struct field *field, char *value);
 	void (*clear)(struct field *field);
 };

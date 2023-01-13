@@ -50,6 +50,20 @@ static int build_layout(struct layout *layout)
 	return parse_json(layout, layout_config);
 }
 
+
+struct field *find_field(struct layout *layout, char *field_name)
+{
+	struct field *fields = layout->fields;
+
+	for (int i = 0; i < layout->num_of_fields; i++)
+		if (fields[i].ops->is_named(&fields[i], field_name))
+			return &fields[i];
+
+	ieprintf("Field \"%s\" not found", field_name);
+
+	return NULL;
+}
+
 /*
  * new_layout() - Allocate a new layout based on the data given in buf.
  * @buf:	Data seed for layout

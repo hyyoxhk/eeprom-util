@@ -60,4 +60,6 @@ struct layout *new_layout(unsigned char *buf, unsigned int buf_size,
 
 void free_layout(struct layout *layout);
 
+struct field *find_field(struct layout *layout, char *field_name);
+
 #endif

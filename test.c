@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <errno.h>
+#include <stdbool.h>
 
 int strtoi_base(char **str, int *dest, int base)
 {
@@ -26,70 +28,64 @@ int strtoi_base(char **str, int *dest, int base)
 	return 1;
 }
 
-int main() {
+static int __read_bin(unsigned char *data, int data_size, char *delimiter, bool reverse,
+			char *str, size_t size)
+{
+	int i, n, len = 0;
+	char *str1 = str;
+	int from = reverse ? data_size - 1 : 0;
+	int to = reverse ? 0 : data_size - 1;
 
-	// char *aaa = "bc:be:cd:01:1c:d9";
-	// int val;
-
-	// char *bin = aaa;
-
-	// strtoi_base(&bin, &val, 16);
-
-	// printf("bin %s\n", bin);
-
-	// printf("%x\n", (unsigned char)val);
-
-	// bin++;
-
-	// strtoi_base(&bin, &val, 16);
-
-	// printf("%x\n", (unsigned char)val);
-
-	// char str[30] = "2030300 This is test";
-	// char *ptr;
-	// int ret;
-
-	// ret = strtol(str, &ptr, 10);
-	// printf("数字（无符号长整数）是 %d\n", ret);
-	// printf("字符串部分是 |%s|\n", ptr);
-
-
-	// printf("%ld\n", sizeof(long int));
-	// printf("%ld\n", sizeof(long));
-	// printf("%ld\n", sizeof(int));
-
-	char *bbb = "12a0b234a";
-	char tmp[3] = { 0, 0, 0 };
-	int i = 0;
-
-	for (int k = 0; k < 2; k++) {
-		tmp[k] = bbb[i + k];	
+	for (i = from; i != to; reverse ? i-- : i++) {
+		n = snprintf(str1, size, "%02x%s", data[i], delimiter);
+		str1 += n;
+		len += n;
+		printf("n = %d\n", n);
 	}
 
-	char *str = tmp;
-	int byte = 0;
-	strtoi_base(&str, &byte, 16);
+	len += snprintf(str1, size, "%02x\n", data[i]);
 
-	printf("%x\n", (unsigned char)byte);
+	return len;
+}
 
-	i = i + 2;
+static int read_mac(unsigned char *data, int data_size, char *str, size_t size)
+{
+	return __read_bin(data, data_size, ":", false, str, size);
+}
 
-	for (int k = 0; k < 2; k++) {
-		tmp[k] = bbb[i + k];	
-	}
+static void __print_bin(unsigned char *data, int data_size, char *delimiter, bool reverse)
+{
+	int i;
+	int from = reverse ? data_size - 1 : 0;
+	int to = reverse ? 0 : data_size - 1;
+	for (i = from; i != to; reverse ? i-- : i++)
+		printf("%02x%s", data[i], delimiter);
 
-	char *str1 = tmp;
-	int byte1 = 0;
-	strtoi_base(&str1, &byte1, 16);
+	printf("%02x\n", data[i]);
+}
 
-	strtoi_base(&str1, &byte1, 16);
+static void print_mac(unsigned char *data, int data_size)
+{
+	__print_bin(data, data_size, ":", false);
+}
 
-	printf("%x\n", (unsigned char)byte1);
+// bc:be:cd:01:1c:d9
+int main()
+{
+	unsigned char aaa = 0xbc;
+	unsigned char data[6]={0xbc, 0xbe, 0xcd, 0x01, 0x1c, 0xd9};
+	int lenth;
+	
+	char bbb[20];
 
-
-
-
-
+	print_mac(data, 6);
+	printf("%02x\n", aaa);
+	
+	lenth = read_mac(data, sizeof(data), bbb, sizeof(bbb));
+	printf("bbb    ===> %s\n", bbb);
+	printf("lenth  ===> %d\n", lenth);
+	printf("strlen ===> %ld\n", strlen(bbb));
+	printf("sizeof ===> %ld\n", sizeof(bbb));
 
 	return 0;
 }

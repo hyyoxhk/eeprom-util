@@ -31,7 +31,7 @@ struct eeprom {
 
 EEPROM_API int eeprom_init(struct eeprom *eeprom, int i2c_bus, int i2c_addr);
 
-EEPROM_API int eeprom_write(struct eeprom *eeprom, char *field_name, char *field_value);
+EEPROM_API int eeprom_read(struct eeprom *eeprom, char *field_name, char *field_value, size_t size);
 
 EEPROM_API int eeprom_write(struct eeprom *eeprom, char *field_name, char *field_value);
 

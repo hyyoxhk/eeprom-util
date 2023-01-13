@@ -36,19 +36,6 @@ int eeprom_init(struct eeprom *eeprom, int i2c_bus, int i2c_addr)
 	return 0;
 }
 
-static struct field *find_field(struct layout *layout, char *field_name)
-{
-	struct field *fields = layout->fields;
-
-	for (int i = 0; i < layout->num_of_fields; i++)
-		if (fields[i].ops->is_named(&fields[i], field_name))
-			return &fields[i];
-
-	ieprintf("Field \"%s\" not found", field_name);
-
-	return NULL;
-}
-
 int eeprom_read(struct eeprom *eeprom, char *field_name, char *field_value, size_t size)
 {
 	struct layout *layout = eeprom->layout;
@@ -56,10 +43,8 @@ int eeprom_read(struct eeprom *eeprom, char *field_name, char *field_value, size
 	
 	field = find_field(layout, field_name);
 	if (!field)
-		return 0;
-	field->ops->read(field, field_value, field->data_size);
-
-	return 0;
+		return -1;
+	return field->ops->read(field, field_value, size);
 }
 
 int eeprom_write(struct eeprom *eeprom, char *field_name, char *field_value)

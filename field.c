@@ -77,23 +77,29 @@ int strtoi(char **str, int *dest)
 #define iveprintf(str, value, name) \
 	ieprintf("Invalid value \"%s\" for field \"%s\" - " str, value, name);
 
-static void __read_bin(const struct field *field, char *delimiter, bool reverse,
+static int __read_bin(const struct field *field, char *delimiter, bool reverse,
 			char *str, size_t size)
 {
-	//ASSERT(field && field->data && delimiter);
+	ASSERT(field && field->data && delimiter);
 
-	int i;
+	int i, n, len = 0;
+	char *str1 = str;
 	int from = reverse ? field->data_size - 1 : 0;
 	int to = reverse ? 0 : field->data_size - 1;
-	for (i = from; i != to; reverse ? i-- : i++)
-		snprintf(str, size, "%02x%s", field->data[i], delimiter);
 
-	snprintf(str, size, "%02x\n", field->data[i]);
+	for (i = from; i != to; reverse ? i-- : i++) {
+		n = snprintf(str1, size, "%02x%s", field->data[i], delimiter);
+		str1 += n;
+		len += n;
+	}
+
+	len += snprintf(str1, size, "%02x\n", field->data[i]);
+	return len;
 }
 
 static int __write_bin(struct field *field, const char *value, bool reverse)
 {
-	//ASSERT(field && field->data && field->name && value);
+	ASSERT(field && field->data && field->name && value);
 
 	int len = strlen(value);
 	int i = reverse ? len - 1 : 0;
@@ -141,7 +147,7 @@ static int __write_bin(struct field *field, const char *value, bool reverse)
 
 static int __write_bin_delim(struct field *field, char *value, char delimiter)
 {
-	//ASSERT(field && field->data && field->name && value);
+	ASSERT(field && field->data && field->name && value);
 
 	int i, val;
 	char *bin = value;
@@ -178,9 +184,9 @@ static int __write_bin_delim(struct field *field, char *value, char delimiter)
  *
  * @field:	an initialized field to read
  */
-static void read_bin(const struct field *field, char *str, size_t size)
+static int read_bin(const struct field *field, char *str, size_t size)
 {
-	__read_bin(field, "", false, str, size);
+	return __read_bin(field, "", false, str, size);
 }
 
 /**
@@ -189,7 +195,7 @@ static void read_bin(const struct field *field, char *str, size_t size)
  * @field:	an initialized field to read
  */
 //TODO
-static void read_bin_raw(const struct field *field, char *str, size_t size)
+static int read_bin_raw(const struct field *field, char *str, size_t size)
 {
 	ASSERT(field && field->data);
 
@@ -215,6 +221,7 @@ static void read_bin_raw(const struct field *field, char *str, size_t size)
 		}
 		printf("\n");
 	}
+	return 0;
 }
 
 /**
@@ -239,9 +246,9 @@ static int write_bin(struct field *field, char *value)
  *
  * @field:	an initialized field to print
  */
-static void read_bin_rev(const struct field *field, char *str, size_t size)
+static int read_bin_rev(const struct field *field, char *str, size_t size)
 {
-	__read_bin(field, "", true, str, size);
+	return __read_bin(field, "", true, str, size);
 }
 
 /**
@@ -282,12 +289,12 @@ static bool is_named(const struct field *field, const char *str)
  * @field:	an initialized field to to read
  * @format:	the string format for printf()
  */
-static void read_field(const struct field *field, char *format, char *str, size_t size)
+static int read_field(const struct field *field, char *format, char *str, size_t size)
 {
 	ASSERT(field && field->name && field->ops && format);
 
 	snprintf(str, size, format, field->name);
-	field->ops->read(field, str, size);
+	return field->ops->read(field, str, size);
 }
 
 /**
@@ -316,7 +323,7 @@ static int write_bin_rev(struct field *field, char *value)
  *
  * @field:	an initialized field to read
  */
-static void read_bin_ver(const struct field *field, char *str, size_t size)
+static int read_bin_ver(const struct field *field, char *str, size_t size)
 {
 	ASSERT(field && field->data);
 
@@ -325,7 +332,7 @@ static void read_bin_ver(const struct field *field, char *str, size_t size)
 		field->data[1] = 0;
 	}
 
-	snprintf(str, size, "%#.2f\n", (field->data[1] << 8 | field->data[0]) / 100.0);
+	return snprintf(str, size, "%#.2f\n", (field->data[1] << 8 | field->data[0]) / 100.0);
 }
 
 /**
@@ -391,9 +398,9 @@ static int write_bin_ver(struct field *field, char *value)
  *
  * @field:	an initialized field to read
  */
-static void read_mac(const struct field *field, char *str, size_t size)
+static int read_mac(const struct field *field, char *str, size_t size)
 {
-	__read_bin(field, ":", false, str, size);
+	return __read_bin(field, ":", false, str, size);
 }
 
 /**
@@ -420,7 +427,7 @@ static char *months[12] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
  * @field:	an initialized field to read
  */
 // TODO
-static void read_date(const struct field *field, char *str, size_t size)
+static int read_date(const struct field *field, char *str, size_t size)
 {
 	ASSERT(field && field->data);
 
@@ -430,7 +437,7 @@ static void read_date(const struct field *field, char *str, size_t size)
 	else
 		printf("BAD");
 
-	snprintf(str, size, "/%d\n", field->data[3] << 8 | field->data[2]);
+	return snprintf(str, size, "/%d\n", field->data[3] << 8 | field->data[2]);
 }
 
 static int validate_date(unsigned char day, unsigned char month,
@@ -553,7 +560,7 @@ static int write_date(struct field *field, char *value)
  * read_ascii() - read the value of a field from type "ascii" to str
  * @field:	an initialized field to read
  */
-static void read_ascii(const struct field *field, char *str1, size_t size)
+static int read_ascii(const struct field *field, char *str1, size_t size)
 {
 	ASSERT(field && field->data);
 
@@ -574,7 +581,7 @@ static void read_ascii(const struct field *field, char *str1, size_t size)
 	}
 
 	sprintf(format, "%%.%ds\n", field->data_size);
-	snprintf(str1, size, format, read_buf);
+	return snprintf(str1, size, format, read_buf);
 }
 
 /**
@@ -608,10 +615,10 @@ static int write_ascii(struct field *field, char *value)
  *
  * @field:	an initialized field to read
  */
-static void read_reserved(const struct field *field, char *str, size_t size)
+static int read_reserved(const struct field *field, char *str, size_t size)
 {
 	ASSERT(field);
-	snprintf(str, size, "(%d bytes)\n", field->data_size);
+	return snprintf(str, size, "(%d bytes)\n", field->data_size);
 }
 
 /**
@@ -619,9 +626,9 @@ static void read_reserved(const struct field *field, char *str, size_t size)
  *
  * @field:	an initialized field to to read
  */
-static void read_default(const struct field *field, char *str, size_t size)
+static int read_default(const struct field *field, char *str, size_t size)
 {
-	read_field(field, "%-30s", str, size);
+	return read_field(field, "%-30s", str, size);
 }
 
 /**
@@ -629,10 +636,11 @@ static void read_default(const struct field *field, char *str, size_t size)
  *
  * @field:	an initialized field to dump
  */
-static void read_dump(const struct field *field, char *str, size_t size)
+static int read_dump(const struct field *field, char *str, size_t size)
 {
 	if (field->type != FIELD_RESERVED)
-		read_field(field, "%s=", str, size);
+		return read_field(field, "%s=", str, size);
+	return -1;
 }
 
 #define OPS_UPDATABLE(type) { \
