@@ -71,7 +71,7 @@ static void print_mac(unsigned char *data, int data_size)
 
 // bc:be:cd:01:1c:d9
 int main()
-{
+{/*
 	unsigned char aaa = 0xbc;
 	unsigned char data[6]={0xbc, 0xbe, 0xcd, 0x01, 0x1c, 0xd9};
 	int lenth;
@@ -86,7 +86,69 @@ int main()
 	printf("lenth  ===> %d\n", lenth);
 	printf("strlen ===> %ld\n", strlen(bbb));
 	printf("sizeof ===> %ld\n", sizeof(bbb));
+*/
+
+	char aaa[16] = "hello ";
+	char *bbb = "world";
+
+
+	printf("aaa  ===> %s\n", aaa);
+
+	//strcat(aaa, bbb);
+	//strncat(aaa, bbb, 7);
+	size_t n = 5;
+	strncat(aaa, "world", 5);
+	printf("aaa  ===> %s\n", aaa);
+
+	printf("strlen ===> %ld\n", strlen(aaa));
+
 
 	return 0;
 }
+
+
+
+
+
+
+/*
+
+
+std::string dir = "Documents";
+char *_tempname = static_cast <char*> (malloc( dir.length() + 14));
+
+strncpy(_tempname, dir.c_str(), dir.length()+1 );
+strncat(_tempname, "/hellooXXXXXX", 13);
+
+
+strncat(_tempname, "/hellooXXXXXX", 13);
+strncat(_tempname, "/hellooXXXXXX", dir.length() + 14 - strlen(_tempname) - 1);
+
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

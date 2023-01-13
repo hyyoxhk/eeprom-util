@@ -62,7 +62,7 @@ error:
 	return ret;
 }
 
-int eeprom_exit(struct eeprom *eeprom)
+void eeprom_exit(struct eeprom *eeprom)
 {
-	return 0;
+	free_layout(eeprom->layout);
 }

@@ -18,9 +18,6 @@ extern "C" {
 #define EEPROM_API
 #endif
 
-#include "field.h"
-#include "hal.h"
-
 struct layout;
 
 struct eeprom {
@@ -29,16 +26,18 @@ struct eeprom {
 	int read_format;
 };
 
-EEPROM_API int eeprom_init(struct eeprom *eeprom, int i2c_bus, int i2c_addr);
+EEPROM_API int eeprom_init(struct eeprom *eeprom, int i2c_bus,
+			   int i2c_addr);
 
-EEPROM_API int eeprom_read(struct eeprom *eeprom, char *field_name, char *field_value, size_t size);
+EEPROM_API int eeprom_read(struct eeprom *eeprom, char *field_name,
+			   char *field_value, size_t size);
 
-EEPROM_API int eeprom_write(struct eeprom *eeprom, char *field_name, char *field_value);
+EEPROM_API int eeprom_write(struct eeprom *eeprom, char *field_name,
+			    char *field_value);
 
-EEPROM_API int eeprom_exit(struct eeprom *eeprom);
+EEPROM_API void eeprom_exit(struct eeprom *eeprom);
 
 #ifdef __cplusplus
 }
 #endif
-
 #endif
