@@ -43,12 +43,12 @@ struct layout {
 	int layout_version;
 	unsigned char *data;
 	int data_size;
-	void (*print)(const struct layout *layout);
-	int (*update_fields)(struct layout *layout,
+	void (*read)(const struct layout *layout);
+	int (*write_fields)(struct layout *layout,
 			     struct data_array *data);
 	int (*clear_fields)(struct layout *layout,
 			    struct data_array *data);
-	int (*update_bytes)(struct layout *layout,
+	int (*write_bytes)(struct layout *layout,
 			    struct data_array *data);
 	int (*clear_bytes)(struct layout *layout,
 			   struct data_array *data);
