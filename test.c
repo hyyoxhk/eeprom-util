@@ -69,6 +69,13 @@ static void print_mac(unsigned char *data, int data_size)
 	__print_bin(data, data_size, ":", false);
 }
 
+/* ARP hardware address length */
+#define ARP_HLEN 6
+/*
+ * The size of a MAC address in string form, each digit requires two chars
+ * and five separator characters to form '00:00:00:00:00:00'.
+ */
+#define ARP_HLEN_ASCII (ARP_HLEN * 2) + (ARP_HLEN - 1)
 // bc:be:cd:01:1c:d9
 int main()
 {/*
@@ -90,6 +97,16 @@ int main()
 
 	char aaa[16] = "hello ";
 	char *bbb = "world";
+	char ccc[6];
+
+	// bc:be:cd:01:1c:d9 
+	ccc[0] = 0xbc;
+	ccc[1] = 0xbe;
+	ccc[2] = 0xcd;
+	ccc[3] = 0x01;
+	ccc[4] = 0x1c;
+	ccc[5] = 0xd9;
+	char buf[ARP_HLEN_ASCII + 1];
 
 
 	printf("aaa  ===> %s\n", aaa);
@@ -97,11 +114,13 @@ int main()
 	//strcat(aaa, bbb);
 	//strncat(aaa, bbb, 7);
 	size_t n = 5;
-	strncat(aaa, "world", 5);
+	strcat(aaa, "world");
 	printf("aaa  ===> %s\n", aaa);
 
 	printf("strlen ===> %ld\n", strlen(aaa));
 
+	sprintf(buf, "%pM", ccc);
+	printf("buf ===> %s\n", buf);
 
 	return 0;
 }
