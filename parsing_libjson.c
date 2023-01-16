@@ -170,11 +170,37 @@ static void *find_node(void *root, const char *field)
 	return node;
 }
 
+static struct field_types types[] = {
+	{FIELD_BINARY,		"FIELD_BINARY" },
+	{FIELD_REVERSED,	"FIELD_REVERSED" },
+	{FIELD_VERSION,		"FIELD_VERSION" },
+	{FIELD_ASCII,		"FIELD_ASCII" },
+	{FIELD_MAC,		"FIELD_MAC" },
+	{FIELD_DATE,		"FIELD_DATE" },
+	{FIELD_RESERVED,	"FIELD_RESERVED" },
+	{FIELD_RAW,		"FIELD_RAW" },
+};
+
+static enum field_type get_index_by_name(char *name)
+{
+	int i;
+
+	if (!name)
+		return FIELD_BINARY;
+
+	for (i = 0; i < sizeof(types); i++)
+		if (strcmp(types[i].name, name) == 0)
+			return i + 1;
+
+	/* not found, default type 'FIELD_BINARY' */
+	return FIELD_BINARY;
+}
+
 static void parse_field(void *setting, struct field *fields)
 {
 	void *elem;
 	int count, i;
-	int type = FIELD_BINARY;
+	char *type = NULL;
 
 	count = json_object_array_length(setting);
 
@@ -187,8 +213,8 @@ static void parse_field(void *setting, struct field *fields)
 		GET_FIELD_STRING(elem, "name", fields[i].name);
 		GET_FIELD_STRING(elem, "short_name", fields[i].short_name);
 		get_field(elem, "data_size", &fields[i].data_size);
-		get_field(elem, "type", &type);
-		fields[i].type = (enum field_type)type;
+		get_field_string(elem, type);
+		fields[i].type = get_index_by_name(type);
 	}
 }
 
@@ -202,7 +228,7 @@ static int parser(void *cfg, struct layout *layout)
 		return -1;
 	}
 	get_field(setting, NULL, &version);
-	if (version != layout->layout_version) {
+	if (version != layout->version) {
 		printf("opened with wrong version file.\n");
 		return -1;
 	}

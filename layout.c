@@ -41,7 +41,7 @@ struct field layout_unknown[1] = {
 static int build_layout(struct layout *layout)
 {
 	char layout_config[32];
-	int layout_ver = layout->layout_version;
+	int layout_ver = layout->version;
 
 	// if (layout_ver == LAYOUT_AUTODETECT)
 	// 	layout_ver = detect_layout(layout->data);
@@ -85,46 +85,6 @@ static size_t get_bytes_range(int offset_start, int offset_end)
 	return offset_end - offset_start + 1;
 }
 
-/*
- * Selectively update EEPROM data by bytes.
- * @layout:	An initialized layout.
- * @data:	A data array. Each element contains the following:
- * 		start: The first byte in EEPROM to be written.
- * 		end: The last byte in EEPROM to be written.
- * 		value: The value to be written to EEPROM.
- *
- * Returns: number of updated bytes.
- */
-static int write_bytes(struct layout *layout, struct data_array *data)
-{
-	ASSERT(layout && data && data->bytes_changes);
-
-	int updated_bytes = 0;
-
-	for (int i = 0; i < data->size; i++) {
-		int offset_start = data->bytes_changes[i].start;
-		int offset_end = data->bytes_changes[i].end;
-		size_t range = get_bytes_range(offset_start, offset_end);
-		if (range == 0)
-			return 0;
-
-		int value = data->bytes_changes[i].value;
-		if (value >= 0 && value <= 255){
-			memset(layout->data + offset_start, value, range);
-			updated_bytes += range;
-			continue;
-		}
-
-		char value_str[60];
-		int chars = sprintf(value_str, "'0x%02x' at offset ", value);
-		offset_to_string(value_str + chars, offset_start, offset_end);
-		ieprintf("Invalid value %s", value_str);
-		return 0;
-	}
-
-	return updated_bytes;
-}
-
 struct field *find_field(struct layout *layout, char *field_name)
 {
 	struct field *fields = layout->fields;
@@ -159,7 +119,7 @@ struct layout *new_layout(unsigned char *buf, unsigned int buf_size,
 	if (!layout)
 		return NULL;
 
-	layout->layout_version = layout_version;
+	layout->version = layout_version;
 	layout->data = buf;
 	layout->data_size = buf_size;
 
@@ -171,12 +131,6 @@ struct layout *new_layout(unsigned char *buf, unsigned int buf_size,
 		field_init(field, buf, read_format);
 		buf += field->data_size;
 	}
-
-	// layout->print = print_layout;
-	// layout->update_fields = update_fields;
-	layout->write_bytes = write_bytes;
-	// layout->clear_fields = clear_fields;
-	// layout->clear_bytes = clear_bytes;
 
 	return layout;
 }

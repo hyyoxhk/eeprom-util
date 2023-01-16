@@ -15,6 +15,11 @@ enum field_type {
 	FIELD_RAW,
 };
 
+struct field_types {
+	enum field_type index;
+	char *name;
+};
+
 enum read_format {
 	FORMAT_DEFAULT,
 	FORMAT_DUMP,

@@ -40,18 +40,9 @@
 struct layout {
 	struct field *fields;
 	int num_of_fields;
-	int layout_version;
+	int version;
 	unsigned char *data;
 	int data_size;
-	void (*read)(const struct layout *layout);
-	int (*write_fields)(struct layout *layout,
-			     struct data_array *data);
-	int (*clear_fields)(struct layout *layout,
-			    struct data_array *data);
-	int (*write_bytes)(struct layout *layout,
-			    struct data_array *data);
-	int (*clear_bytes)(struct layout *layout,
-			   struct data_array *data);
 };
 
 struct layout *new_layout(unsigned char *buf, unsigned int buf_size,
