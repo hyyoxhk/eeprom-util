@@ -29,7 +29,7 @@
 #include <sys/ioctl.h>
 
 #include "hal.h"
-#include "common.h"
+#include "util.h"
 
 /*
  * Prepares a device file fd for read or write.
