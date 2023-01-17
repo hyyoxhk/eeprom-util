@@ -1,0 +1,15 @@
+name: Meson
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Configure Meson
+      shell: bash
+      run: meson --buildtype release build/
+
+    - name: Build
+      shell: bash
+      run: ninja -C build
