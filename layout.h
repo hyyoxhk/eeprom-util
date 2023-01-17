@@ -46,8 +46,7 @@ struct layout {
 };
 
 struct layout *new_layout(unsigned char *buf, unsigned int buf_size,
-			  int layout_version,
-			  enum read_format read_format);
+			  int layout_version, int read_format);
 
 void free_layout(struct layout *layout);
 

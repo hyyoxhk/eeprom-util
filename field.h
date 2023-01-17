@@ -20,10 +20,8 @@ struct field_types {
 	char *name;
 };
 
-enum read_format {
-	FORMAT_DEFAULT,
-	FORMAT_DUMP,
-};
+#define FORMAT_DEFAULT 0
+#define FORMAT_DUMP 1
 
 struct field;
 
@@ -44,7 +42,6 @@ struct field {
 	struct field_ops *ops;
 };
 
-void field_init(struct field *field, unsigned char *data,
-		enum read_format read_format);
+void field_init(struct field *field, unsigned char *data, int format);
 
 #endif

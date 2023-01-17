@@ -110,8 +110,7 @@ struct field *find_field(struct layout *layout, char *field_name)
  * Returns: pointer to a new layout on success, NULL on failure
  */
 struct layout *new_layout(unsigned char *buf, unsigned int buf_size,
-			  int layout_version,
-			  enum read_format read_format)
+			  int layout_version, int format)
 {
 	ASSERT(buf);
 
@@ -128,7 +127,7 @@ struct layout *new_layout(unsigned char *buf, unsigned int buf_size,
 
 	for (int i = 0; i < layout->num_of_fields; i++) {
 		struct field *field = &layout->fields[i];
-		field_init(field, buf, read_format);
+		field_init(field, buf, format);
 		buf += field->data_size;
 	}
 
