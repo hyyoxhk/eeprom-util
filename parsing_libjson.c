@@ -8,6 +8,7 @@
 #include <json-c/json.h>
 
 #include "layout.h"
+#include "field.h"
 #include "parsing_libjson.h"
 
 /*

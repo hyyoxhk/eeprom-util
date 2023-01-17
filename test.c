@@ -95,33 +95,21 @@ int main()
 	printf("sizeof ===> %ld\n", sizeof(bbb));
 */
 
-	char aaa[16] = "hello ";
+	char aaa[] = "hello";
 	char *bbb = "world";
-	char ccc[6];
 
-	// bc:be:cd:01:1c:d9 
-	ccc[0] = 0xbc;
-	ccc[1] = 0xbe;
-	ccc[2] = 0xcd;
-	ccc[3] = 0x01;
-	ccc[4] = 0x1c;
-	ccc[5] = 0xd9;
-	char buf[ARP_HLEN_ASCII + 1];
+	char *white0 = "\033[48;5;231m";
+	char white1[] = "\033[48;5;231m";
 
 
-	printf("aaa  ===> %s\n", aaa);
 
-	//strcat(aaa, bbb);
-	//strncat(aaa, bbb, 7);
-	size_t n = 5;
-	strcat(aaa, "world");
-	printf("aaa  ===> %s\n", aaa);
 
-	printf("strlen ===> %ld\n", strlen(aaa));
 
-	sprintf(buf, "%pM", ccc);
-	printf("buf ===> %s\n", buf);
 
+	printf("%ld\n", sizeof(aaa));
+	printf("%ld\n", sizeof(bbb));
+	printf("%ld\n", sizeof(*white0));
+	printf("%ld\n", sizeof(white1));
 	return 0;
 }
 
