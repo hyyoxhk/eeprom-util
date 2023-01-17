@@ -252,52 +252,6 @@ static int read_bin_rev(const struct field *field, char *str, size_t size)
 }
 
 /**
- * clear_field() - clear a field
- *
- * A cleared field is defined by having all bytes set to 0xff.
- *
- * @field:	an initialized field to clear
- */
-static void clear_field(struct field *field)
-{
-	ASSERT(field && field->data);
-	memset(field->data, 0xff, field->data_size);
-}
-
-/**
- * is_named() - check if any of the field's names match the given string
- *
- * @field:	an initialized field to check
- * @str:	the string to check
- *
- * Returns:	true if field's names matches, false otherwise.
- */
-static bool is_named(const struct field *field, const char *str)
-{
-	ASSERT(field && field->name && field->short_name && str);
-
-	if (field->type != FIELD_RESERVED && field->type != FIELD_RAW &&
-	    (!strcmp(field->name, str) || !strcmp(field->short_name, str)))
-		return true;
-
-	return false;
-}
-
-/**
- * read_field() - print the given field using the given string format to str
- *
- * @field:	an initialized field to to read
- * @format:	the string format for printf()
- */
-static int read_field(const struct field *field, char *format, char *str, size_t size)
-{
-	ASSERT(field && field->name && field->ops && format);
-
-	snprintf(str, size, format, field->name);
-	return field->ops->read(field, str, size);
-}
-
-/**
  * write_bin_rev() - Update field with new data in binary form, storing it in reverse
  *
  * This function takes a string of byte values, and stores them
@@ -619,6 +573,52 @@ static int read_reserved(const struct field *field, char *str, size_t size)
 {
 	ASSERT(field);
 	return snprintf(str, size, "(%d bytes)\n", field->data_size);
+}
+
+/**
+ * clear_field() - clear a field
+ *
+ * A cleared field is defined by having all bytes set to 0xff.
+ *
+ * @field:	an initialized field to clear
+ */
+static void clear_field(struct field *field)
+{
+	ASSERT(field && field->data);
+	memset(field->data, 0xff, field->data_size);
+}
+
+/**
+ * is_named() - check if any of the field's names match the given string
+ *
+ * @field:	an initialized field to check
+ * @str:	the string to check
+ *
+ * Returns:	true if field's names matches, false otherwise.
+ */
+static bool is_named(const struct field *field, const char *str)
+{
+	ASSERT(field && field->name && field->short_name && str);
+
+	if (field->type != FIELD_RESERVED && field->type != FIELD_RAW &&
+	    (!strcmp(field->name, str) || !strcmp(field->short_name, str)))
+		return true;
+
+	return false;
+}
+
+/**
+ * read_field() - print the given field using the given string format to str
+ *
+ * @field:	an initialized field to to read
+ * @format:	the string format for printf()
+ */
+static int read_field(const struct field *field, char *format, char *str, size_t size)
+{
+	ASSERT(field && field->name && field->ops && format);
+
+	snprintf(str, size, format, field->name);
+	return field->ops->read(field, str, size);
 }
 
 /**
