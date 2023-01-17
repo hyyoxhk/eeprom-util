@@ -671,11 +671,11 @@ static struct field_ops field_ops[] = {
 };
 
 /**
- * init_field() - init field according to field.type
+ * field_init() - init field according to field.type
  *
  * @field:		an initialized field with a known field.type to init
  * @data:		the binary data of the field
- * @print_format:	the print format of the field
+ * @read_format:	the read format of the field
  */
 void field_init(struct field *field, unsigned char *data,
 		enum read_format read_format)
@@ -686,5 +686,5 @@ void field_init(struct field *field, unsigned char *data,
 	field->data = data;
 
 	if (read_format == FORMAT_DUMP)
-		field->ops->read = read_dump;
+		field->ops->read_default = read_dump;
 }
