@@ -149,7 +149,7 @@ static int __write_bin_delim(struct field *field, char *value, char delimiter)
 {
 	ASSERT(field && field->data && field->name && value);
 
-	int i, val;
+	int i, val = 0;
 	char *bin = value;
 
 	for (i = 0; i < (field->data_size - 1); i++) {
@@ -309,7 +309,7 @@ static int write_bin_ver(struct field *field, char *value)
 	ASSERT(field && field->data && field->name && value);
 
 	char *version = value;
-	int num, remainder;
+	int num = 0, remainder = 0;
 
 	if (strtoi(&version, &num) != STRTOI_STR_CON && *version != '.') {
 		iveprintf("Syntax error", value, field->name);
@@ -459,7 +459,7 @@ static int write_date(struct field *field, char *value)
 	ASSERT(field && field->data && field->name && value);
 
 	char *date = value;
-	int day, month, year;
+	int day = 0, month, year = 0;
 
 	if (strtoi(&date, &day) != STRTOI_STR_CON || *date != '/') {
 		iveprintf("Syntax error", value, field->name);
