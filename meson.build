@@ -55,7 +55,8 @@ srcs_libeeprom = [
 	'field.c',
 	'hal.c',
 	'layout.c',
-	'parsing_libjson.c'
+	'parsing_libjson.c',
+	'util.c'
 ]
 
 lib_libeeprom = library(

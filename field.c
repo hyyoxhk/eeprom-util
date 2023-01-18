@@ -24,54 +24,8 @@
 #include <stdbool.h>
 #include <errno.h>
 
-#include "common.h"
+#include "util.h"
 #include "field.h"
-
-/*
- * strtoi_base - convert to int using the given numerical base and point
- *		 to the first character after the number
- *
- * @str:	A pointer to a string containing an integer number at the
- *		beginning. On success the pointer will point to the first
- *		character after the number.
- * @dest:	A pointer where to save the int result
- * @base:	The numerical base of the characters in the input string.
- * 		If 0 the base is determined by the format.
- *
- * Returns:	STRTOI_STR_END on success and all characters read.
- *		STRTOI_STR_CON on success and additional characters remain.
- *		-ERANGE or -EINVAL on failure
- */
-int strtoi_base(char **str, int *dest, int base)
-{
-	ASSERT(str && *str && dest);
-
-	if (**str == '\0')
-		return -EINVAL;
-
-	char *endptr;
-	errno = 0;
-	int num = strtol(*str, &endptr, base);
-
-	if (errno != 0)
-		return -errno;
-
-	if (*str == endptr)
-		return -EINVAL;
-
-	*dest = num;
-	*str = endptr;
-
-	if (*endptr == 0)
-		return STRTOI_STR_END;
-
-	return STRTOI_STR_CON;
-}
-
-int strtoi(char **str, int *dest)
-{
-	return strtoi_base(str, dest, 0);
-}
 
 // Macro for printing field's input value error messages
 #define iveprintf(str, value, name) \

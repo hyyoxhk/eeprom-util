@@ -4,7 +4,16 @@
  */
 
 #include <stdlib.h>
+#include <errno.h>
 #include "util.h"
+
+#ifdef DEBUG
+void failed_assert(const char* func, char *file, int line)
+{
+	eprintf("Assertion Failed in %s() (%s:%d)\n", func, file, line);
+	exit(1);
+}
+#endif /* ifdef DEBUG */
 
 /*
  * strtoi_base - convert to int using the given numerical base and point
