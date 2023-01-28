@@ -3,6 +3,8 @@
 #include <string.h>
 #include <errno.h>
 #include <stdbool.h>
+#include <net/if.h>
+
 
 int strtoi_base(char **str, int *dest, int base)
 {
@@ -110,6 +112,12 @@ int main()
 	printf("%ld\n", sizeof(bbb));
 	printf("%ld\n", sizeof(*white0));
 	printf("%ld\n", sizeof(white1));
+	
+	char ifname[16];
+	
+	if_indextoname(2, ifname);
+	
+	printf("ifname ===> %s\n", ifname);
 	return 0;
 }
 

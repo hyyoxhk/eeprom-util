@@ -27,7 +27,9 @@ int eeprom_init(struct eeprom *eeprom, int i2c_bus, int i2c_addr)
 
 	hal_read(&hal_api, buffer, 0, EEPROM_SIZE);
 
-	layout = new_layout(buffer, EEPROM_SIZE, eeprom->layout_ver, eeprom->read_format);
+	printf("hyyoxhk %s\n", buffer);
+
+	layout = new_layout(buffer, EEPROM_SIZE, eeprom->layout_ver);
 	if (!layout) {
 		perror("Memory allocation error");
 		return -1;
@@ -38,7 +40,16 @@ int eeprom_init(struct eeprom *eeprom, int i2c_bus, int i2c_addr)
 	return 0;
 }
 
-int eeprom_read(struct eeprom *eeprom, char *field_name, char *field_value, size_t size)
+int eeprom_read_by_index(struct eeprom *eeprom, int index, char *field_value, size_t size)
+{
+	struct layout *layout = eeprom->layout;
+	struct field *fields = layout->fields;
+	struct field *field = &fields[index];
+
+	return field->ops->read(field, field_value, size);
+}
+
+int eeprom_read_by_name(struct eeprom *eeprom, char *field_name, char *field_value, size_t size)
 {
 	struct layout *layout = eeprom->layout;
 	struct field *field;
@@ -49,7 +60,7 @@ int eeprom_read(struct eeprom *eeprom, char *field_name, char *field_value, size
 	return field->ops->read(field, field_value, size);
 }
 
-int eeprom_write(struct eeprom *eeprom, char *field_name, char *field_value)
+int eeprom_write_by_name(struct eeprom *eeprom, char *field_name, char *field_value)
 {
 	struct layout *layout = eeprom->layout;
 	struct field *field;

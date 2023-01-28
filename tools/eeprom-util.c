@@ -251,6 +251,23 @@ static int parse_i2c_bus(char *str)
 	return value;
 }
 
+static int parse_i2c_addr(char *str)
+{
+	ASSERT(str);
+
+	int value;
+	if (strtoi(&str, &value) != STRTOI_STR_END)
+		message_exit("Invalid address number!\n");
+
+	if (value < MIN_I2C_ADDR || value > MAX_I2C_ADDR) {
+		ieprintf("Address '0x%02x' is out of range (0x%02x-0x%02x)",
+			value, MIN_I2C_ADDR, MAX_I2C_ADDR);
+		exit(1);
+	}
+
+	return value;
+}
+
 #define NEXT_PARAM(argc, argv)	{(argc)--; (argv)++;}
 int main(int argc, char *argv[])
 {
@@ -304,6 +321,18 @@ int main(int argc, char *argv[])
 	cond_usage_exit(argc < 1, "Missing I2C bus & address parameters!\n");
 	options.i2c_bus = parse_i2c_bus(argv[0]);
 	NEXT_PARAM(argc, argv);
+
+	if (action == EEPROM_LIST)
+		goto done;
+
+	cond_usage_exit(argc < 1, "Missing I2C address parameter!\n");
+	options.i2c_addr = parse_i2c_addr(argv[0]);
+	NEXT_PARAM(argc, argv);
+
+	// input = argv;
+	// input_size = argc;
+	// if (is_stdin && add_lines_from_stdin(&input, &input_size))
+	// 	return 1;
 
 done:
 	cmd = new_command(action, &options, &data);

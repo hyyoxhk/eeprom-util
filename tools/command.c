@@ -23,6 +23,21 @@
 #include "command.h"
 #include "../eeprom.h"
 
+static void print_eeprom(struct eeprom *eeprom, int format)
+{
+	ASSERT(layout && layout->fields);
+
+	struct layout *layout = eeprom->layout;
+	char print_buf[64];
+	int i;
+
+	for (i = 0; i < layout->num_of_fields; i++) {
+		eeprom_read_by_index(eeprom, i, print_buf, sizeof(print_buf));
+		// printf("%s\n", print_buf);
+	}
+	printf("i = %d\n", i);
+}
+
 static int execute_command(struct command *cmd)
 {
 	ASSERT(cmd && cmd->action != EEPROM_ACTION_INVALID);
@@ -39,7 +54,7 @@ static int execute_command(struct command *cmd)
 
 	switch(cmd->action) {
 	case EEPROM_READ:
-		printf("fdasfasd\n");
+		print_eeprom(&eeprom, cmd->opts->print_format);
 		ret = 0;
 	case EEPROM_WRITE_FIELDS:
 		break;

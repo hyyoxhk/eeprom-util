@@ -600,7 +600,6 @@ static int read_dump(const struct field *field, char *str, size_t size)
 #define OPS_UPDATABLE(type) { \
 	.is_named	= is_named, \
 	.read		= read_##type, \
-	.read_default	= read_default, \
 	.write		= write_##type, \
 	.clear		= clear_field, \
 }
@@ -608,7 +607,6 @@ static int read_dump(const struct field *field, char *str, size_t size)
 #define OPS_PRINTABLE(type) { \
 	.is_named	= is_named, \
 	.read		= read_##type, \
-	.read_default	= read_default, \
 	.write		= NULL, \
 	.clear		= NULL, \
 }
@@ -631,13 +629,10 @@ static struct field_ops field_ops[] = {
  * @data:		the binary data of the field
  * @format:		the read format of the field
  */
-void field_init(struct field *field, unsigned char *data, int format)
+void field_init(struct field *field, unsigned char *data)
 {
 	ASSERT(field && data);
 
 	field->ops = &field_ops[field->type];
 	field->data = data;
-
-	if (format == FORMAT_DUMP)
-		field->ops->read_default = read_dump;
 }
