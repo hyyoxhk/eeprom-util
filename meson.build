@@ -72,3 +72,5 @@ dep_libeeprom = declare_dependency(
 	link_with: lib_libeeprom,
 	include_directories: inc_libeeprom
 )
+
+subdir('tools')

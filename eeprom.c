@@ -25,6 +25,8 @@ int eeprom_init(struct eeprom *eeprom, int i2c_bus, int i2c_addr)
 		return -1;
 	}
 
+	hal_read(&hal_api, buffer, 0, EEPROM_SIZE);
+
 	layout = new_layout(buffer, EEPROM_SIZE, eeprom->layout_ver, eeprom->read_format);
 	if (!layout) {
 		perror("Memory allocation error");
@@ -64,5 +66,6 @@ error:
 
 void eeprom_exit(struct eeprom *eeprom)
 {
+	hal_write(&hal_api, buffer, 0, EEPROM_SIZE);
 	free_layout(eeprom->layout);
 }
