@@ -578,7 +578,7 @@ static int read_field(const struct field *field, char *format, char *str, size_t
 /**
  * read_default() - read the given field using the default format to str
  *
- * @field:	an initialized field to to read
+ * @field:	an initialized field to read
  */
 static int read_default(const struct field *field, char *str, size_t size)
 {
