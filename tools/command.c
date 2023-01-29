@@ -44,21 +44,20 @@ static int execute_command(struct command *cmd)
 	ASSERT(cmd && cmd->action != EEPROM_ACTION_INVALID);
 
 	int ret = -1;
-	struct eeprom eeprom;
+	struct eeprom *eeprom;
 
 	// TODO: list
 
-	eeprom.layout_ver = cmd->opts->layout_ver;
-	eeprom.read_format = cmd->opts->print_format;
-	ret = eeprom_init(&eeprom, cmd->opts->i2c_bus, cmd->opts->i2c_addr);
-	if (ret < 0) {
+	// ret = eeprom_init(&eeprom, cmd->opts->i2c_bus, cmd->opts->i2c_addr);
+	eeprom = eeprom_open(cmd->opts->i2c_bus, cmd->opts->i2c_addr, cmd->opts->layout_ver);
+	if (!eeprom) {
 		ret = -1;
 		goto done;
 	}
 
 	switch(cmd->action) {
 	case EEPROM_READ:
-		print_eeprom(&eeprom, cmd->opts->print_format);
+		print_eeprom(eeprom, cmd->opts->print_format);
 		ret = 0;
 	case EEPROM_WRITE_FIELDS:
 		break;

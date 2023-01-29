@@ -4,6 +4,7 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include "eeprom.h"
 #include "layout.h"
 #include "field.h"
@@ -12,37 +13,34 @@
 #define EEPROM_SIZE 256
 
 static struct hal hal_api;
-static unsigned char buffer[EEPROM_SIZE];
 
-// struct eeprom *eeprom_init(int i2c_bus, int i2c_addr)
-int eeprom_init(struct eeprom *eeprom, int i2c_bus, int i2c_addr)
+struct eeprom *eeprom_open(int i2c_bus, int i2c_addr, int layout_ver)
 {
-	struct layout *layout;
+	struct eeprom *eeprom;
 	int ret;
-
-	// struct eeprom *eeprom;
-
-	// eeprom = zalloc(sizeof(eeprom));
-	// if (eeprom == NULL)
-	// 	return NULL;
 
 	ret = hal_init(&hal_api, i2c_bus, i2c_addr);
 	if (ret < 0) {
 		perror("hal error");
-		return -1;
+		return NULL;
 	}
 
-	hal_read(&hal_api, buffer, 0, EEPROM_SIZE);
+	eeprom = malloc(sizeof(eeprom) + EEPROM_SIZE);
+	if (!eeprom)
+		return NULL;
 
-	layout = new_layout(buffer, EEPROM_SIZE, eeprom->layout_ver);
-	if (!layout) {
+	eeprom->buffer = (unsigned char *)eeprom + sizeof(sizeof(eeprom));
+
+	hal_read(&hal_api, eeprom->buffer, 0, EEPROM_SIZE);
+
+	eeprom->layout = new_layout(eeprom->buffer, EEPROM_SIZE, layout_ver);
+	if (!eeprom->layout) {
 		perror("Memory allocation error");
-		return -1;
+		free(eeprom);
+		return NULL;
 	}
 
-	eeprom->layout = layout;
-
-	return 0;
+	return eeprom;
 }
 
 int eeprom_read_by_index(struct eeprom *eeprom, int index, char *field_value, size_t size)
@@ -80,8 +78,9 @@ error:
 	return ret;
 }
 
-void eeprom_exit(struct eeprom *eeprom)
+void eeprom_close(struct eeprom *eeprom)
 {
-	hal_write(&hal_api, buffer, 0, EEPROM_SIZE);
+	hal_write(&hal_api, eeprom->buffer, 0, EEPROM_SIZE);
 	free_layout(eeprom->layout);
+	free(eeprom);
 }
