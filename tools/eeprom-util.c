@@ -40,6 +40,9 @@ static inline bool write_enabled(void) { return false; }
 #define BUILD_DATE "16 1月 2023"
 #define BUILD_TIME "11:53:19"
 
+#define FORMAT_DEFAULT 0
+#define FORMAT_DUMP 1
+
 static void print_banner(void)
 {
 	char *version = strnlen(VERSION, 20) ? " version " VERSION : "";

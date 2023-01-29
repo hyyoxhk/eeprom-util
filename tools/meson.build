@@ -1,7 +1,6 @@
 srcs = [
 	'eeprom-util.c',
-	'command.c',
-	'../util.c'
+	'command.c'
 ]
 
 executable(

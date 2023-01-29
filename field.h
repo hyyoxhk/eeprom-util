@@ -1,10 +1,14 @@
 #ifndef _FIELD_
 #define _FIELD_
 
+#ifdef  __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include <stddef.h>
 
-enum field_type {
+typedef enum {
 	FIELD_BINARY,
 	FIELD_REVERSED,
 	FIELD_VERSION,
@@ -13,17 +17,26 @@ enum field_type {
 	FIELD_DATE,
 	FIELD_RESERVED,
 	FIELD_RAW,
-};
+}field_type;
+
+
+
 
 struct field_types {
-	enum field_type index;
+	field_type index;
 	char *name;
 };
 
-#define FORMAT_DEFAULT 0
-#define FORMAT_DUMP 1
+struct field_ops;
 
-struct field;
+struct field {
+	char name[64];
+	char short_name[16];
+	int data_size;
+	field_type type;
+	unsigned char *data;
+	struct field_ops *ops;
+};
 
 struct field_ops {
 	bool (*is_named)(const struct field *field, const char *str);
@@ -32,15 +45,10 @@ struct field_ops {
 	void (*clear)(struct field *field);
 };
 
-struct field {
-	char name[64];
-	char short_name[16];
-	int data_size;
-	enum field_type type;
-	unsigned char *data;
-	struct field_ops *ops;
-};
-
 void field_init(struct field *field, unsigned char *data);
+
+#ifdef  __cplusplus
+}
+#endif
 
 #endif

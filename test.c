@@ -71,6 +71,17 @@ static void print_mac(unsigned char *data, int data_size)
 	__print_bin(data, data_size, ":", false);
 }
 
+enum field_type {
+	FIELD_BINARY,
+	FIELD_REVERSED,
+	FIELD_VERSION,
+	FIELD_ASCII,
+	FIELD_MAC,
+	FIELD_DATE,
+	FIELD_RESERVED,
+	FIELD_RAW,
+};
+
 /* ARP hardware address length */
 #define ARP_HLEN 6
 /*
@@ -118,6 +129,10 @@ int main()
 	if_indextoname(2, ifname);
 	
 	printf("ifname ===> %s\n", ifname);
+	
+	int indev = FIELD_BINARY;
+	
+	printf("FIELD_BINARY %d\n", indev);
 	return 0;
 }
 

@@ -171,18 +171,18 @@ static void *find_node(void *root, const char *field)
 	return node;
 }
 
-static struct field_types types[] = {
-	{FIELD_BINARY,		"FIELD_BINARY" },
-	{FIELD_REVERSED,	"FIELD_REVERSED" },
-	{FIELD_VERSION,		"FIELD_VERSION" },
-	{FIELD_ASCII,		"FIELD_ASCII" },
-	{FIELD_MAC,		"FIELD_MAC" },
-	{FIELD_DATE,		"FIELD_DATE" },
-	{FIELD_RESERVED,	"FIELD_RESERVED" },
-	{FIELD_RAW,		"FIELD_RAW" },
+static const char * const types[] = {
+	"FIELD_BINARY",
+	"FIELD_REVERSED",
+	"FIELD_VERSION",
+	"FIELD_ASCII",
+	"FIELD_MAC",
+	"FIELD_DATE",
+	"FIELD_RESERVED",
+	"FIELD_RAW"
 };
 
-static enum field_type get_index_by_name(char *name)
+static field_type get_index_by_name(const char *name)
 {
 	int i;
 
@@ -190,8 +190,8 @@ static enum field_type get_index_by_name(char *name)
 		return FIELD_BINARY;
 
 	for (i = 0; i < sizeof(types); i++)
-		if (strcmp(types[i].name, name) == 0)
-			return i + 1;
+		if (strcmp(types[i], name) == 0)
+			return i;
 
 	/* not found, default type 'FIELD_BINARY' */
 	return FIELD_BINARY;
@@ -201,10 +201,9 @@ static void parse_field(void *setting, struct field *fields)
 {
 	void *elem;
 	int count, i;
-	char *type = NULL;
+	const char *type = NULL;
 
 	count = json_object_array_length(setting);
-
 	for(i = 0; i < count; i++) {
 		elem = json_object_array_get_idx(setting, i);
 
@@ -214,7 +213,7 @@ static void parse_field(void *setting, struct field *fields)
 		GET_FIELD_STRING(elem, "name", fields[i].name);
 		GET_FIELD_STRING(elem, "short_name", fields[i].short_name);
 		get_field(elem, "data_size", &fields[i].data_size);
-		get_field_string(elem, type);
+		type = get_field_string(elem, "type");
 		fields[i].type = get_index_by_name(type);
 	}
 }

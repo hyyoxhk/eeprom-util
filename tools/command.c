@@ -19,6 +19,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "command.h"
 #include "../eeprom.h"
@@ -32,10 +33,10 @@ static void print_eeprom(struct eeprom *eeprom, int format)
 	int i;
 
 	for (i = 0; i < layout->num_of_fields; i++) {
+		memset(print_buf, 0, sizeof(print_buf));
 		eeprom_read_by_index(eeprom, i, print_buf, sizeof(print_buf));
-		// printf("%s\n", print_buf);
+		printf("%s\n", print_buf);
 	}
-	printf("i = %d\n", i);
 }
 
 static int execute_command(struct command *cmd)
@@ -49,8 +50,11 @@ static int execute_command(struct command *cmd)
 
 	eeprom.layout_ver = cmd->opts->layout_ver;
 	eeprom.read_format = cmd->opts->print_format;
-	eeprom_init(&eeprom, cmd->opts->i2c_bus, cmd->opts->i2c_addr);
-
+	ret = eeprom_init(&eeprom, cmd->opts->i2c_bus, cmd->opts->i2c_addr);
+	if (ret < 0) {
+		ret = -1;
+		goto done;
+	}
 
 	switch(cmd->action) {
 	case EEPROM_READ:
@@ -69,6 +73,7 @@ static int execute_command(struct command *cmd)
 	default:
 	}
 
+done:
 	return ret;
 }
 

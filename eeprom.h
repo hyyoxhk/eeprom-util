@@ -26,6 +26,8 @@ struct eeprom {
 	int read_format;
 };
 
+// EEPROM_API struct eeprom *eeprom_open(int i2c_bus, int i2c_addr, );
+
 EEPROM_API int eeprom_init(struct eeprom *eeprom, int i2c_bus,
 			   int i2c_addr);
 

@@ -14,10 +14,17 @@
 static struct hal hal_api;
 static unsigned char buffer[EEPROM_SIZE];
 
+// struct eeprom *eeprom_init(int i2c_bus, int i2c_addr)
 int eeprom_init(struct eeprom *eeprom, int i2c_bus, int i2c_addr)
 {
 	struct layout *layout;
 	int ret;
+
+	// struct eeprom *eeprom;
+
+	// eeprom = zalloc(sizeof(eeprom));
+	// if (eeprom == NULL)
+	// 	return NULL;
 
 	ret = hal_init(&hal_api, i2c_bus, i2c_addr);
 	if (ret < 0) {
@@ -26,8 +33,6 @@ int eeprom_init(struct eeprom *eeprom, int i2c_bus, int i2c_addr)
 	}
 
 	hal_read(&hal_api, buffer, 0, EEPROM_SIZE);
-
-	printf("hyyoxhk %s\n", buffer);
 
 	layout = new_layout(buffer, EEPROM_SIZE, eeprom->layout_ver);
 	if (!layout) {
