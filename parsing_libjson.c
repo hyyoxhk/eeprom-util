@@ -1,4 +1,8 @@
-#include <stdio.h>
+// SPDX-License-Identifier: MIT
+/*
+ * Copyright (C) 2022 He Yong <hyyoxhk@163.com>
+ */
+
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>

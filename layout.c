@@ -1,21 +1,6 @@
+// SPDX-License-Identifier: MIT
 /*
- * Copyright (C) 2009-2017 CompuLab, Ltd.
  * Copyright (C) 2022 He Yong <hyyoxhk@163.com>
- * Authors: Nikita Kiryanov <nikita@compulab.co.il>
- *	    Igor Grinberg <grinberg@compulab.co.il>
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include <stdio.h>
@@ -24,6 +9,7 @@
 #include <malloc.h>
 #include <errno.h>
 
+#include "eeprom.h"
 #include "layout.h"
 #include "field.h"
 #include "parsing_libjson.h"
@@ -85,7 +71,7 @@ static size_t get_bytes_range(int offset_start, int offset_end)
 	return offset_end - offset_start + 1;
 }
 
-struct field *find_field(struct layout *layout, char *field_name)
+struct field *find_field_by_name(struct layout *layout, char *field_name)
 {
 	struct field *fields = layout->fields;
 
@@ -96,6 +82,12 @@ struct field *find_field(struct layout *layout, char *field_name)
 	ieprintf("Field \"%s\" not found", field_name);
 
 	return NULL;
+}
+
+struct field *find_field_by_index(struct layout *layout, int index)
+{
+	struct field *fields = layout->fields;
+	return &fields[index];
 }
 
 /*

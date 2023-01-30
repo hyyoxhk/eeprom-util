@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: MIT
+/*
+ * Copyright (C) 2022 He Yong <hyyoxhk@163.com>
+ */
+
 #ifndef _PARSING_LIBJSON_
 #define _PARSING_LIBJSON_
 

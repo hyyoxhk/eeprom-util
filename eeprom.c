@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-2.0-only
+// SPDX-License-Identifier: MIT
 /*
  * Copyright (C) 2022 He Yong <hyyoxhk@163.com>
  */
@@ -46,8 +46,11 @@ struct eeprom *eeprom_open(int i2c_bus, int i2c_addr, int layout_ver)
 int eeprom_read_by_index(struct eeprom *eeprom, int index, char *field_value, size_t size)
 {
 	struct layout *layout = eeprom->layout;
-	struct field *fields = layout->fields;
-	struct field *field = &fields[index];
+	struct field *field;
+
+	field = find_field_by_index(layout, index);
+	if (!field)
+		return -1;
 
 	return field->ops->read(field, field_value, size);
 }
@@ -57,7 +60,7 @@ int eeprom_read_by_name(struct eeprom *eeprom, char *field_name, char *field_val
 	struct layout *layout = eeprom->layout;
 	struct field *field;
 	
-	field = find_field(layout, field_name);
+	field = find_field_by_name(layout, field_name);
 	if (!field)
 		return -1;
 	return field->ops->read(field, field_value, size);
@@ -69,7 +72,7 @@ int eeprom_write_by_name(struct eeprom *eeprom, char *field_name, char *field_va
 	struct field *field;
 	int ret = -1;
 	
-	field = find_field(layout, field_name);
+	field = find_field_by_name(layout, field_name);
 	if (!field)
 		goto error;
 	if (field->ops->write(field, field_value))
