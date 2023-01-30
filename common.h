@@ -75,7 +75,5 @@ struct data_array {
 
 #define STRTOI_STR_CON 1
 #define STRTOI_STR_END 2
-int strtoi_base(char **str, int *dest, int base);
-int strtoi(char **str, int *dest);
 
 #endif

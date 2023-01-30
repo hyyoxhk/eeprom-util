@@ -4,11 +4,11 @@
  */
 
 #include <stdio.h>
-#include <stdlib.h>
 #include "eeprom.h"
 #include "layout.h"
 #include "field.h"
 #include "hal.h"
+#include "util.h"
 
 #define EEPROM_SIZE 256
 
@@ -25,11 +25,11 @@ struct eeprom *eeprom_open(int i2c_bus, int i2c_addr, int layout_ver)
 		return NULL;
 	}
 
-	eeprom = malloc(sizeof(eeprom) + EEPROM_SIZE);
+	eeprom = zalloc(sizeof(struct eeprom) + EEPROM_SIZE);
 	if (!eeprom)
 		return NULL;
 
-	eeprom->buffer = (unsigned char *)eeprom + sizeof(sizeof(eeprom));
+	eeprom->buffer = (unsigned char *)eeprom + sizeof(struct eeprom);
 
 	hal_read(&hal_api, eeprom->buffer, 0, EEPROM_SIZE);
 
