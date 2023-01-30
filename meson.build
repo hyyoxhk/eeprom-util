@@ -5,8 +5,6 @@ project('eeprom-util',
 	license : 'GPL-2.0-only',
 )
 
-auto_generated_h = configuration_data()
-
 cc = meson.get_compiler('c')
 
 global_args = []
@@ -26,17 +24,9 @@ foreach a : global_args_maybe
 endforeach
 add_global_arguments(global_args, language: 'c')
 
-version = meson.project_version() + run_command('setversion', check: false).stdout().strip()
-date = run_command('date', '+%d %b %C%y', check: false).stdout().strip()
-time = run_command('date', '+%T', check: false).stdout().strip()
-
-auto_generated_h.set_quoted('VERSION', version)
-auto_generated_h.set_quoted('BUILD_DATE', date)
-auto_generated_h.set_quoted('BUILD_TIME', time)
-
-configure_file(output: 'auto_generated.h', configuration: auto_generated_h)
-
 extra_args = []
+
+pkgconfig = import('pkgconfig')
 
 if get_option('enable-write')
 	extra_args += '-DENABLE_WRITE'
@@ -72,4 +62,13 @@ dep_libeeprom = declare_dependency(
 	include_directories: inc_libeeprom
 )
 
-subdir('tools')
+install_headers('eeprom.h')
+
+pkgconfig.generate(
+	lib_libeeprom,
+	name: 'eeprom',
+	description : 'eeprom layout parser',
+	version: meson.project_version()
+)
+
+#subdir('tools')
