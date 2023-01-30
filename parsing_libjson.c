@@ -3,6 +3,7 @@
  * Copyright (C) 2022 He Yong <hyyoxhk@163.com>
  */
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>

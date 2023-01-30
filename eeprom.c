@@ -12,6 +12,11 @@
 
 #define EEPROM_SIZE 256
 
+struct eeprom {
+	struct layout *layout;
+	unsigned char *buffer;
+};
+
 static struct hal hal_api;
 
 struct eeprom *eeprom_open(int i2c_bus, int i2c_addr, int layout_ver)
