@@ -35,4 +35,9 @@ struct layout *new_layout(unsigned char *buf, unsigned int buf_size,
 
 void free_layout(struct layout *layout);
 
+struct field *find_field_by_name(struct layout *layout, char *field_name);
+
+struct field *find_field_by_index(struct layout *layout, int index);
+
+
 #endif

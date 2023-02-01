@@ -25,19 +25,16 @@ EEPROM_API int eeprom_read_by_index(struct eeprom *eeprom, int index,
 EEPROM_API int eeprom_read_by_name(struct eeprom *eeprom, char *field_name,
 				   char *field_value, size_t size);
 
+EEPROM_API int eeprom_write_by_index(struct eeprom *eeprom, int index,
+				     char *field_value);
+
 EEPROM_API int eeprom_write_by_name(struct eeprom *eeprom, char *field_name,
 				    char *field_value);
 
 EEPROM_API void eeprom_close(struct eeprom *eeprom);
 
 
-EEPROM_API struct field *find_field_by_name(struct layout *layout, char *field_name);
-
-EEPROM_API struct field *find_field_by_index(struct layout *layout, int index);
-
-EEPROM_API char *get_name(struct field *field);
-
-EEPROM_API char *get_index(struct field *field);
+EEPROM_API char *eeprom_get_field_name(struct eeprom *eeprom, int index);
 
 #ifdef __cplusplus
 }

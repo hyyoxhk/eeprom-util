@@ -92,3 +92,16 @@ void eeprom_close(struct eeprom *eeprom)
 	free_layout(eeprom->layout);
 	free(eeprom);
 }
+
+
+char *eeprom_get_field_name(struct eeprom *eeprom, int index)
+{
+	struct layout *layout = eeprom->layout;
+	struct field *field;
+
+	field = find_field_by_index(layout, index);
+	if (!field)
+		return NULL;
+
+	return field->name;
+}
