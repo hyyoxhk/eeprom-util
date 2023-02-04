@@ -108,31 +108,7 @@ int main()
 	printf("sizeof ===> %ld\n", sizeof(bbb));
 */
 
-	char aaa[] = "hello";
-	char *bbb = "world";
 
-	char *white0 = "\033[48;5;231m";
-	char white1[] = "\033[48;5;231m";
-
-
-
-
-
-
-	printf("%ld\n", sizeof(aaa));
-	printf("%ld\n", sizeof(bbb));
-	printf("%ld\n", sizeof(*white0));
-	printf("%ld\n", sizeof(white1));
-	
-	char ifname[16];
-	
-	if_indextoname(2, ifname);
-	
-	printf("ifname ===> %s\n", ifname);
-	
-	int indev = FIELD_BINARY;
-	
-	printf("FIELD_BINARY %d\n", indev);
 	return 0;
 }
 

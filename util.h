@@ -19,20 +19,32 @@ extern "C" {
 
 #include <stdlib.h>
 
-// Macro for handling debug checks
-#ifndef DEBUG
-#define ASSERT(args) ((void)0)
-#else // ifndef DEBUG
-void failed_assert(const char* func, char *file, int line);
-#define ASSERT(arg) ((arg) ? ((void)0) : \
-	failed_assert(__func__, __FILE__, __LINE__))
-#endif // ifndef DEBUG
+#define COLOR_RED  "\x1B[31m"
+#define COLOR_GREEN  "\x1B[32m"
+#define COLOR_RESET  "\033[0m"
+
+#define MIN_I2C_BUS 0
+#define MAX_I2C_BUS 255
+
+#define MIN_I2C_ADDR 0x03
+#define MAX_I2C_ADDR 0x77
+
+#define STR_ENO_MEM "Out of memory"
 
 // Macro for printing error messages
 #define eprintf(args...) fprintf (stderr, args)
 // Macro for printing input error messages
 #define ie_fmt(fmt) "Input error: " fmt " - Operation Aborted!\n"
 #define ieprintf(fmt, ...) eprintf(ie_fmt(fmt), ##__VA_ARGS__)
+
+// Macro for handling debug checks
+#ifndef DEBUG
+	#define ASSERT(args) ((void)0)
+#else
+	void failed_assert(const char* func, char *file, int line);
+	#define ASSERT(arg) ((arg) ? ((void)0) : \
+	failed_assert(__func__, __FILE__, __LINE__))
+#endif /* DEBUG */
 
 #define STRTOI_STR_CON 1
 #define STRTOI_STR_END 2

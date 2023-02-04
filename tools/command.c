@@ -12,14 +12,14 @@
 
 static void print_eeprom(struct eeprom *eeprom, int format)
 {
-	ASSERT(layout && layout->fields);
-
-	struct layout *layout = eeprom->layout;
+	// ASSERT(layout && layout->fields);
+	int num_of_fields;
 	char print_buf[64];
 	int i;
 
-	for (i = 0; i < layout->num_of_fields; i++) {
-		layout->data_size;
+	num_of_fields = eeprom_get_field_num(eeprom);
+
+	for (i = 0; i < num_of_fields; i++) {
 		memset(print_buf, 0, sizeof(print_buf));
 		eeprom_read_by_index(eeprom, i, print_buf, sizeof(print_buf));
 		printf("%s\n", print_buf);
@@ -28,7 +28,7 @@ static void print_eeprom(struct eeprom *eeprom, int format)
 
 static int execute_command(struct command *cmd)
 {
-	ASSERT(cmd && cmd->action != EEPROM_ACTION_INVALID);
+	// ASSERT(cmd && cmd->action != EEPROM_ACTION_INVALID);
 
 	int ret = -1;
 	struct eeprom *eeprom;

@@ -8,8 +8,7 @@
 #include <stdbool.h>
 #include <string.h>
 
-//#include "../util.h"
-#include "../field.h"
+#include "../eeprom.h"
 #include "command.h"
 
 #define COLOR_RED  "\x1B[31m"
@@ -128,7 +127,7 @@ static void print_help(void)
 
 static void message_exit(const char *message)
 {
-	ASSERT(message);
+	// ASSERT(message);
 
 	eprintf(COLOR_RED "%s" COLOR_RESET, message);
 	print_help();
@@ -151,7 +150,7 @@ static void usage_exit(void)
 
 static enum action parse_action(int argc, char *argv[])
 {
-	ASSERT(argv && argc > 0);
+	// ASSERT(argv && argc > 0);
 
 	if (!strncmp(argv[0], "list", 4)) {
 		return EEPROM_LIST;
@@ -189,7 +188,7 @@ static enum action parse_action(int argc, char *argv[])
 
 static int parse_layout_version(char *str)
 {
-	ASSERT(str);
+	// ASSERT(str);
 
 	if (!strncmp(str, "legacy", 6))
 		return LAYOUT_LEGACY;
@@ -212,7 +211,7 @@ static int parse_layout_version(char *str)
 
 static int parse_print_format(char *str)
 {
-	ASSERT(str);
+	// ASSERT(str);
 
 	if (!strncmp(str, "default", 7))
 		return FORMAT_DEFAULT;
@@ -225,7 +224,7 @@ static int parse_print_format(char *str)
 
 static int parse_i2c_bus(char *str)
 {
-	ASSERT(str);
+	// ASSERT(str);
 
 	int value;
 	if (strtoi(&str, &value) != STRTOI_STR_END)

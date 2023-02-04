@@ -6,21 +6,7 @@
 #ifndef _LAYOUT_
 #define _LAYOUT_
 
-#include "common.h"
-// #include "field.h"
-
-#define EEPROM_SIZE 256
-
-#define LAYOUT_AUTODETECT -1
-#define LAYOUT_LEGACY 0
-
-#define LAYOUT_VER1 1
-#define LAYOUT_VER2 2
-#define LAYOUT_VER3 3
-#define LAYOUT_VER4 4
-
-#define LAYOUT_UNRECOGNIZED 254
-#define RAW_DATA 255
+#include "field.h"
 
 struct layout {
 	struct field *fields;

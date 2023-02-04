@@ -8,9 +8,6 @@
 #include "layout.h"
 #include "field.h"
 #include "hal.h"
-#include "util.h"
-
-#define EEPROM_SIZE 256
 
 struct eeprom {
 	struct layout *layout;
@@ -26,7 +23,6 @@ struct eeprom *eeprom_open(int i2c_bus, int i2c_addr, int layout_ver)
 
 	ret = hal_init(&hal_api, i2c_bus, i2c_addr);
 	if (ret < 0) {
-		perror("hal error");
 		return NULL;
 	}
 
@@ -40,7 +36,6 @@ struct eeprom *eeprom_open(int i2c_bus, int i2c_addr, int layout_ver)
 
 	eeprom->layout = new_layout(eeprom->buffer, EEPROM_SIZE, layout_ver);
 	if (!eeprom->layout) {
-		perror("Memory allocation error");
 		free(eeprom);
 		return NULL;
 	}
@@ -56,7 +51,6 @@ int eeprom_read_by_index(struct eeprom *eeprom, int index, char *field_value, si
 	field = find_field_by_index(layout, index);
 	if (!field)
 		return -1;
-
 	return field->ops->read(field, field_value, size);
 }
 
@@ -75,15 +69,11 @@ int eeprom_write_by_name(struct eeprom *eeprom, char *field_name, char *field_va
 {
 	struct layout *layout = eeprom->layout;
 	struct field *field;
-	int ret = -1;
 	
 	field = find_field_by_name(layout, field_name);
 	if (!field)
-		goto error;
-	if (field->ops->write(field, field_value))
-		ret = 0;
-error:
-	return ret;
+		return -1;
+	return field->ops->write(field, field_value);
 }
 
 void eeprom_close(struct eeprom *eeprom)
@@ -104,4 +94,11 @@ char *eeprom_get_field_name(struct eeprom *eeprom, int index)
 		return NULL;
 
 	return field->name;
+}
+
+int eeprom_get_field_num(struct eeprom *eeprom)
+{
+	struct layout *layout = eeprom->layout;
+
+	return layout->num_of_fields;
 }

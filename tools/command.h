@@ -6,8 +6,6 @@
 #ifndef _COMMAND_
 #define _COMMAND_
 
-#include "../layout.h"
-
 enum action {
 	EEPROM_READ,
 	EEPROM_WRITE_FIELDS,
@@ -17,6 +15,32 @@ enum action {
 	EEPROM_CLEAR_FIELDS,
 	EEPROM_CLEAR_BYTES,
 	EEPROM_ACTION_INVALID,
+};
+
+struct field_change {
+	char *field;
+	char *value;
+};
+
+struct bytes_change {
+	int start;
+	int end;
+	int value;
+};
+
+struct bytes_range {
+	int start;
+	int end;
+};
+
+struct data_array {
+	int size;
+	union {
+		struct field_change *fields_changes;
+		struct bytes_change *bytes_changes;
+		char **fields_list;
+		struct bytes_range *bytes_list;
+	};
 };
 
 struct options {

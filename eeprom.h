@@ -14,8 +14,12 @@ extern "C" {
 #include <stddef.h>
 #include "util.h"
 
-struct field;
-struct layout;
+#define EEPROM_SIZE 256
+
+#define LAYOUT_AUTODETECT -1
+#define LAYOUT_LEGACY 0
+#define LAYOUT_UNRECOGNIZED 254
+#define RAW_DATA 255
 
 EEPROM_API struct eeprom *eeprom_open(int i2c_bus, int i2c_addr, int layer_ver);
 
@@ -35,6 +39,8 @@ EEPROM_API void eeprom_close(struct eeprom *eeprom);
 
 
 EEPROM_API char *eeprom_get_field_name(struct eeprom *eeprom, int index);
+
+EEPROM_API int eeprom_get_field_num(struct eeprom *eeprom);
 
 #ifdef __cplusplus
 }

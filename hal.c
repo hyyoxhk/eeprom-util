@@ -14,7 +14,6 @@
 #include <sys/ioctl.h>
 
 #include "hal.h"
-#include "util.h"
 
 /*
  * Prepares a device file fd for read or write.
@@ -110,10 +109,6 @@ static int driver_write(int fd, unsigned char *buf, int offset, int size)
 	return write(fd, buf + offset, size);
 }
 
-#define PRINT_NOT_FOUND(x) eprintf("No "x" was found")
-#define PRINT_BUS_NUM(x) (x >= 0) ? eprintf(" on bus %d\n", x) : eprintf("\n")
-#define PRINT_DRIVER_HINT(x) eprintf("Is "x" driver loaded?\n")
-
 #define DRIVER_DEV_PATH "/sys/bus/i2c/devices"
 int hal_init(struct hal *hal, int i2c_bus, int i2c_addr)
 {
@@ -135,24 +130,24 @@ int hal_init(struct hal *hal, int i2c_bus, int i2c_addr)
 	hal->fd = open_device_file(eeprom_dev_fname, -1);
 	if (hal->fd < 0) {
 		/* print error which occurred when opening i2c-dev file */
-		eprintf("Error, %s access failed: %s (%d)\n",
+		fprintf(stderr, "Error, %s access failed: %s (%d)\n",
 			i2cdev_fname, strerror(saved_errno), -saved_errno);
 		if (saved_errno == ENOENT)
-			PRINT_DRIVER_HINT("i2c-dev");
+			fprintf(stderr, "Is i2c-dev driver loaded?\n");
 
 		/* print error which occurred when opening eeprom-dev file */
-		eprintf("Error, %s access failed: %s (%d)\n",
+		fprintf(stderr, "Error, %s access failed: %s (%d)\n",
 			eeprom_dev_fname, strerror(errno), -errno);
 		if (errno == ENOENT)
-			PRINT_DRIVER_HINT("EEPROM");
+			fprintf(stderr, "Is EEPROM driver loaded?\n");
 	} else {
 		hal->read = driver_read;
 		hal->write = driver_write;
 		return 0;
 	}
 
-	eprintf("Neither EEPROM driver nor i2c device interface is available");
-	eprintf("\n");
+	fprintf(stderr, "Neither EEPROM driver nor i2c device interface is available");
+	fprintf(stderr, "\n");
 
 	return -1;
 }

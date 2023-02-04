@@ -5,6 +5,7 @@
 
 #include <stdlib.h>
 #include <errno.h>
+
 #include "util.h"
 
 #ifdef DEBUG
@@ -13,7 +14,7 @@ void failed_assert(const char* func, char *file, int line)
 	eprintf("Assertion Failed in %s() (%s:%d)\n", func, file, line);
 	exit(1);
 }
-#endif /* ifdef DEBUG */
+#endif /* DEBUG */
 
 int strtoi_base(char **str, int *dest, int base)
 {

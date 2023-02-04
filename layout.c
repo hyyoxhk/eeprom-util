@@ -12,7 +12,7 @@
 #include "eeprom.h"
 #include "layout.h"
 #include "field.h"
-#include "parsing_libjson.h"
+#include "libjson.h"
 
 #define LAYOUT_CHECK_BYTE	44
 #define NO_LAYOUT_FIELDS	"Unknown layout. Dumping raw data\n"
@@ -34,41 +34,6 @@ static int build_layout(struct layout *layout)
 
 	sprintf(layout_config, LAYOUT_PATH"/layout-v%d.json", layout_ver);
 	return parse_json(layout, layout_config);
-}
-
-/*
- * offset_to_string() - convert offset or range to string
- * @dest_str:		A pointer to where the string will be written
- * @offset_start:	The start offset
- * @offset_end:		The end offset
- */
-static void offset_to_string(char* dest_str, int offset_start, int offset_end)
-{
-	ASSERT(dest_str);
-	int chars = sprintf(dest_str, "'0x%02x", offset_start);
-	if (offset_end != offset_start)
-		chars += sprintf(dest_str + chars, "-0x%02x", offset_end);
-	sprintf(dest_str + chars, "'");
-}
-
-/*
- * get_bytes_range() - Test offsets values and return range
- * @offset_start:	The start offset
- * @offset_end:		The end offset
- *
- * Returns: range on success, 0 on failure.
- */
-static size_t get_bytes_range(int offset_start, int offset_end)
-{
-	if (offset_start < 0 || offset_start >= EEPROM_SIZE ||
-	    offset_end < offset_start || offset_end >= EEPROM_SIZE) {
-		char offset_str[30];
-		offset_to_string(offset_str, offset_start, offset_end);
-		ieprintf("Invalid offset %s", offset_str);
-		return 0;
-	}
-
-	return offset_end - offset_start + 1;
 }
 
 struct field *find_field_by_name(struct layout *layout, char *field_name)

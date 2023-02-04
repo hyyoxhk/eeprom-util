@@ -9,8 +9,8 @@
 #include <stdbool.h>
 #include <errno.h>
 
-#include "util.h"
 #include "field.h"
+#include "util.h"
 
 // Macro for printing field's input value error messages
 #define iveprintf(str, value, name) \
@@ -19,8 +19,6 @@
 static int __read_bin(const struct field *field, char *delimiter, bool reverse,
 			char *str, size_t size)
 {
-	ASSERT(field && field->data && delimiter);
-
 	int i, n, len = 0;
 	char *str1 = str;
 	int from = reverse ? field->data_size - 1 : 0;
@@ -38,8 +36,6 @@ static int __read_bin(const struct field *field, char *delimiter, bool reverse,
 
 static int __write_bin(struct field *field, const char *value, bool reverse)
 {
-	ASSERT(field && field->data && field->name && value);
-
 	int len = strlen(value);
 	int i = reverse ? len - 1 : 0;
 
@@ -86,8 +82,6 @@ static int __write_bin(struct field *field, const char *value, bool reverse)
 
 static int __write_bin_delim(struct field *field, char *value, char delimiter)
 {
-	ASSERT(field && field->data && field->name && value);
-
 	int i, val = 0;
 	char *bin = value;
 
@@ -136,8 +130,6 @@ static int read_bin(const struct field *field, char *str, size_t size)
 //TODO
 static int read_bin_raw(const struct field *field, char *str, size_t size)
 {
-	ASSERT(field && field->data);
-
 	printf("     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f"
 	       "     0123456789abcdef\n");
 	int i, j;
@@ -218,8 +210,6 @@ static int write_bin_rev(struct field *field, char *value)
  */
 static int read_bin_ver(const struct field *field, char *str, size_t size)
 {
-	ASSERT(field && field->data);
-
 	if ((field->data[0] == 0xff) && (field->data[1] == 0xff)) {
 		field->data[0] = 0;
 		field->data[1] = 0;
@@ -245,8 +235,6 @@ static int read_bin_ver(const struct field *field, char *str, size_t size)
  */
 static int write_bin_ver(struct field *field, char *value)
 {
-	ASSERT(field && field->data && field->name && value);
-
 	char *version = value;
 	int num = 0, remainder = 0;
 
@@ -322,8 +310,6 @@ static char *months[12] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
 // TODO
 static int read_date(const struct field *field, char *str, size_t size)
 {
-	ASSERT(field && field->data);
-
 	printf("%02d/", field->data[0]);
 	if (field->data[1] >= 1 && field->data[1] <= 12)
 		printf("%s", months[field->data[1] - 1]);
@@ -395,8 +381,6 @@ static int validate_date(unsigned char day, unsigned char month,
  */
 static int write_date(struct field *field, char *value)
 {
-	ASSERT(field && field->data && field->name && value);
-
 	char *date = value;
 	int day = 0, month, year = 0;
 
@@ -455,8 +439,6 @@ static int write_date(struct field *field, char *value)
  */
 static int read_ascii(const struct field *field, char *str1, size_t size)
 {
-	ASSERT(field && field->data);
-
 	char format[8];
 	int *str = (int*)field->data;
 	int pattern = *str;
@@ -486,8 +468,6 @@ static int read_ascii(const struct field *field, char *str1, size_t size)
  */
 static int write_ascii(struct field *field, char *value)
 {
-	ASSERT(field && field->data && field->name && value);
-
 	if (strlen(value) >= field->data_size) {
 		iveprintf("Value is too long", value, field->name);
 		return -1;
@@ -510,7 +490,6 @@ static int write_ascii(struct field *field, char *value)
  */
 static int read_reserved(const struct field *field, char *str, size_t size)
 {
-	ASSERT(field);
 	return snprintf(str, size, "(%d bytes)\n", field->data_size);
 }
 
@@ -523,7 +502,6 @@ static int read_reserved(const struct field *field, char *str, size_t size)
  */
 static void clear_field(struct field *field)
 {
-	ASSERT(field && field->data);
 	memset(field->data, 0xff, field->data_size);
 }
 
@@ -537,49 +515,11 @@ static void clear_field(struct field *field)
  */
 static bool is_named(const struct field *field, const char *str)
 {
-	ASSERT(field && field->name && field->short_name && str);
-
 	if (field->type != FIELD_RESERVED && field->type != FIELD_RAW &&
 	    (!strcmp(field->name, str) || !strcmp(field->short_name, str)))
 		return true;
 
 	return false;
-}
-
-/**
- * read_field() - print the given field using the given string format to str
- *
- * @field:	an initialized field to to read
- * @format:	the string format for printf()
- */
-static int read_field(const struct field *field, char *format, char *str, size_t size)
-{
-	ASSERT(field && field->name && field->ops && format);
-
-	snprintf(str, size, format, field->name);
-	return field->ops->read(field, str, size);
-}
-
-/**
- * read_default() - read the given field using the default format to str
- *
- * @field:	an initialized field to read
- */
-static int read_default(const struct field *field, char *str, size_t size)
-{
-	return read_field(field, "%-30s", str, size);
-}
-
-/**
- * read_dump() - read the given field using the dump format to str
- *
- * @field:	an initialized field to dump
- */
-static int read_dump(const struct field *field, char *str, size_t size)
-{
-	if (field->type != FIELD_RESERVED)
-		return read_field(field, "%s=", str, size);
-	return -1;
 }
 
 #define OPS_UPDATABLE(type) { \
@@ -616,8 +556,6 @@ static struct field_ops field_ops[] = {
  */
 void field_init(struct field *field, unsigned char *data)
 {
-	ASSERT(field && data);
-
 	field->ops = &field_ops[field->type];
 	field->data = data;
 }
