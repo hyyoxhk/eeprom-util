@@ -28,6 +28,11 @@ static void print_eeprom(struct eeprom *eeprom, int format)
 	}
 }
 
+static void update_eeprom(struct eeprom *eeprom, int format)
+{
+
+}
+
 static int execute_command(struct command *cmd)
 {
 	// ASSERT(cmd && cmd->action != EEPROM_ACTION_INVALID);
@@ -49,6 +54,7 @@ static int execute_command(struct command *cmd)
 		print_eeprom(eeprom, cmd->opts->print_format);
 		ret = 0;
 	case EEPROM_WRITE_FIELDS:
+		update_eeprom(eeprom, cmd->opts->print_format);
 		break;
 	case EEPROM_WRITE_BYTES:
 		break;
@@ -62,6 +68,7 @@ static int execute_command(struct command *cmd)
 	}
 
 done:
+	eeprom_close(eeprom);
 	return ret;
 }
 
