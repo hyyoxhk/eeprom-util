@@ -21,6 +21,8 @@ static void print_eeprom(struct eeprom *eeprom, int format)
 
 	for (i = 0; i < num_of_fields; i++) {
 		memset(print_buf, 0, sizeof(print_buf));
+		
+		printf("%s", eeprom_get_field_name(eeprom, i));
 		eeprom_read_by_index(eeprom, i, print_buf, sizeof(print_buf));
 		printf("%s\n", print_buf);
 	}
