@@ -9,11 +9,6 @@
 #include "field.h"
 #include "hal.h"
 
-struct eeprom {
-	struct layout *layout;
-	unsigned char *buffer;
-};
-
 static struct hal hal_api;
 
 struct eeprom *eeprom_open(int i2c_bus, int i2c_addr, int layout_ver)
@@ -83,7 +78,6 @@ void eeprom_close(struct eeprom *eeprom)
 	free(eeprom);
 }
 
-
 char *eeprom_get_field_name(struct eeprom *eeprom, int index)
 {
 	struct layout *layout = eeprom->layout;
@@ -101,4 +95,14 @@ int eeprom_get_field_num(struct eeprom *eeprom)
 	struct layout *layout = eeprom->layout;
 
 	return layout->num_of_fields;
+}
+
+void eeprom_clean_field(struct eeprom *eeprom, char *field_name)
+{
+	struct layout *layout = eeprom->layout;
+	struct field *field;
+
+	field = find_field_by_name(layout, field_name);
+	if (field)
+		field->ops->clear(field);
 }

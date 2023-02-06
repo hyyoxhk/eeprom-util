@@ -21,7 +21,12 @@ extern "C" {
 #define LAYOUT_UNRECOGNIZED 254
 #define RAW_DATA 255
 
-struct eeprom;
+struct layout;
+
+struct eeprom {
+	struct layout *layout;
+	unsigned char *buffer;
+};
 
 EEPROM_API struct eeprom *eeprom_open(int i2c_bus, int i2c_addr, int layer_ver);
 
@@ -43,6 +48,8 @@ EEPROM_API void eeprom_close(struct eeprom *eeprom);
 EEPROM_API char *eeprom_get_field_name(struct eeprom *eeprom, int index);
 
 EEPROM_API int eeprom_get_field_num(struct eeprom *eeprom);
+
+EEPROM_API void eeprom_clean_field(struct eeprom *eeprom, char *field_name);
 
 #ifdef __cplusplus
 }

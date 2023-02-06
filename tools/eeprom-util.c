@@ -338,5 +338,5 @@ done:
 	else if (action == EEPROM_CLEAR_BYTES)
 		free(data.bytes_list);
 
-	return 0;
+	return ret ? 1 : 0;
 }
