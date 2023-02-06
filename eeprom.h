@@ -45,4 +45,5 @@ EEPROM_API int eeprom_get_field_num(struct eeprom *eeprom);
 #ifdef __cplusplus
 }
 #endif
-#endif
+
+#endif /* _EEPROM_H_ */
