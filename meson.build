@@ -2,7 +2,7 @@ project('eeprom-util',
 	'c',
 	version: '4.0',
 	meson_version: '>= 0.52.1',
-	license : 'GPL-2.0-only',
+	license : 'MIT',
 )
 
 cc = meson.get_compiler('c')
@@ -72,4 +72,4 @@ pkgconfig.generate(
 	version: meson.project_version()
 )
 
-#subdir('tools')
+subdir('tools')
