@@ -1,4 +1,4 @@
-# libeeprom - a simple and convenient EEPROM read and write library
+# libeeprom - a simple and generic EEPROM read and write library
 
 This library is used to read and write EEPROM information. It works for
 any EEPROM, but has special support for Compulab SoMs by being aware of the EEPROM
