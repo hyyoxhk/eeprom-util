@@ -21,6 +21,8 @@ extern "C" {
 #define LAYOUT_UNRECOGNIZED 254
 #define RAW_DATA 255
 
+struct eeprom;
+
 EEPROM_API struct eeprom *eeprom_open(int i2c_bus, int i2c_addr, int layer_ver);
 
 EEPROM_API int eeprom_read_by_index(struct eeprom *eeprom, int index,
