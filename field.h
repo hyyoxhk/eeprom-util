@@ -6,7 +6,7 @@
 #ifndef _FIELD_
 #define _FIELD_
 
-#ifdef  __cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -52,7 +52,7 @@ struct field_ops {
 
 void field_init(struct field *field, unsigned char *data);
 
-#ifdef  __cplusplus
+#ifdef __cplusplus
 }
 #endif
 

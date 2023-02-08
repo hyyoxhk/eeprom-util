@@ -6,6 +6,10 @@
 #ifndef _LAYOUT_
 #define _LAYOUT_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "field.h"
 
 struct layout {
@@ -25,5 +29,8 @@ struct field *find_field_by_name(struct layout *layout, char *field_name);
 
 struct field *find_field_by_index(struct layout *layout, int index);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif
