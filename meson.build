@@ -63,13 +63,18 @@ dep_libeeprom = declare_dependency(
 	include_directories: inc_libeeprom
 )
 
-install_headers('eeprom.h')
+install_headers(
+	'eeprom.h',
+	'util.h',
+	subdir: 'eeprom'
+	)
 
 pkgconfig.generate(
 	lib_libeeprom,
 	name: 'eeprom',
 	description : 'eeprom layout parser',
-	version: meson.project_version()
+	version: meson.project_version(),
+	subdirs: 'eeprom'
 )
 
 subdir('tools')
