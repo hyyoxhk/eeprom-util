@@ -149,8 +149,11 @@ static int execute_command(struct command *cmd)
 	struct eeprom *eeprom;
 
 	// TODO: list
+	if (cmd->action == EEPROM_LIST) {
+		printf("Not support lsit\n");
+		return 0;
+	}
 
-	// ret = eeprom_init(&eeprom, cmd->opts->i2c_bus, cmd->opts->i2c_addr);
 	eeprom = eeprom_open(cmd->opts->i2c_bus, cmd->opts->i2c_addr, cmd->opts->layout_ver);
 	if (!eeprom) {
 		ret = -1;
