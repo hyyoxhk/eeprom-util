@@ -190,6 +190,7 @@ static int execute_command(struct command *cmd)
 		}
 		break;
 	default:
+		goto done;
 	}
 
 done:
