@@ -1,9 +1,8 @@
 # libeeprom - a simple and generic EEPROM read and write library
 
-This library is used to read and write EEPROM information. It works for
-any EEPROM, but has special support for Compulab SoMs by being aware of the EEPROM
-layout, and using that information to display the EEPROM contents in a human
-readable format.
+libeeprom is used to read and write EEPROM information. it applies to
+Any EEPROM. You can customize the layout of the EEPROM and populate the 
+layout with your own fields
 
 The utility provides a WYSIWYG UI for updating EEPROM contents; the user can
 specify the target field by name, and provide the new value in the same
