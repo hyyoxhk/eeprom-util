@@ -156,8 +156,7 @@ static int execute_command(struct command *cmd)
 
 	eeprom = eeprom_open(cmd->opts->i2c_bus, cmd->opts->i2c_addr, cmd->opts->layout_ver);
 	if (!eeprom) {
-		ret = -1;
-		goto done;
+		return -1;
 	}
 
 	switch(cmd->action) {
