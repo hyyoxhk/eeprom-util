@@ -38,7 +38,7 @@ endif
 
 dep_json_c = dependency('json-c', version: '>= 0.13.1')
 
-inc_libeeprom = include_directories('include')
+inc_libeeprom = include_directories('.')
 
 srcs_libeeprom = [
 	'eeprom.c',
