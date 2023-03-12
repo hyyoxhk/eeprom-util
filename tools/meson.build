@@ -1,6 +1,7 @@
 srcs = [
 	'eeprom-util.c',
-	'command.c'
+	'command.c',
+	'../util.c'
 ]
 
 extra_args = []

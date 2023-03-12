@@ -10,12 +10,7 @@
 extern "C" {
 #endif
 
-/** visibility attribute */
-#if defined(__GNUC__) && __GNUC__ >= 4
-#define EEPROM_API __attribute__ ((visibility("default")))
-#else
-#define EEPROM_API
-#endif
+
 
 #include <stdlib.h>
 
@@ -64,9 +59,9 @@ extern "C" {
  *		STRTOI_STR_CON on success and additional characters remain.
  *		-ERANGE or -EINVAL on failure
  */
-EEPROM_API int strtoi_base(char **str, int *dest, int base);
+int strtoi_base(char **str, int *dest, int base);
 
-EEPROM_API int strtoi(char **str, int *dest);
+int strtoi(char **str, int *dest);
 
 #define zalloc(size) calloc(1, size)
 

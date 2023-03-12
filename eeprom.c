@@ -8,6 +8,7 @@
 #include "layout.h"
 #include "field.h"
 #include "hal.h"
+#include "util.h"
 
 static struct hal hal_api;
 

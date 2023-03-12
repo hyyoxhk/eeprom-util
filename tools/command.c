@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "util.h"
 #include "command.h"
 #include "../eeprom.h"
 
@@ -36,7 +37,7 @@ static void print_eeprom(struct eeprom *eeprom, int format)
  */
 static void offset_to_string(char *dest_str, int offset_start, int offset_end)
 {
-	ASSERT(dest_str);
+	// ASSERT(dest_str);
 	int chars = sprintf(dest_str, "'0x%02x", offset_start);
 	if (offset_end != offset_start)
 		chars += sprintf(dest_str + chars, "-0x%02x", offset_end);

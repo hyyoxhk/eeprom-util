@@ -8,6 +8,7 @@
 #include <stdbool.h>
 #include <string.h>
 
+#include "../util.h"
 #include "../eeprom.h"
 #include "command.h"
 

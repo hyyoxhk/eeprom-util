@@ -9,6 +9,7 @@
 #include <malloc.h>
 #include <errno.h>
 
+#include "util.h"
 #include "eeprom.h"
 #include "layout.h"
 #include "field.h"

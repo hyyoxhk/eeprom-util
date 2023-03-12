@@ -11,8 +11,14 @@
 extern "C" {
 #endif
 
+/** visibility attribute */
+#if defined(__GNUC__) && __GNUC__ >= 4
+#define EEPROM_API __attribute__ ((visibility("default")))
+#else
+#define EEPROM_API
+#endif
+
 #include <stddef.h>
-#include "util.h"
 
 #define EEPROM_SIZE 256
 
